@@ -68,7 +68,7 @@ void lexer(const char *source) {
             if (strcmp(word, "int") == 0) type = TOKEN_INT;
             else if (strcmp(word, "float") == 0) type = TOKEN_FLOAT;
             else if (strcmp(word, "str") == 0) type = TOKEN_STR;
-            else if (strcmp(word, "void") == 0) type = TOKEN_INT; // void représenté comme type
+            else if (strcmp(word, "void") == 0) type = TOKEN_VOID;
             else if (strcmp(word, "print") == 0) type = TOKEN_PRINT;
             else if (strcmp(word, "if") == 0) type = TOKEN_IF;
             else if (strcmp(word, "else") == 0) type = TOKEN_ELSE;

@@ -6,6 +6,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
+#include "version.h"
 
 // ============================================================================
 // TYPES ET STRUCTURES
@@ -13,7 +14,7 @@
 
 // Types de tokens
 typedef enum {
-    TOKEN_INT, TOKEN_FLOAT, TOKEN_STR,
+    TOKEN_INT, TOKEN_FLOAT, TOKEN_STR, TOKEN_VOID,
     TOKEN_IDENTIFIER, TOKEN_NUMBER, TOKEN_STRING,
     TOKEN_ASSIGN, TOKEN_PRINT, TOKEN_LPAREN, TOKEN_RPAREN,
     TOKEN_SEMICOLON, TOKEN_EOF, TOKEN_COMMA,

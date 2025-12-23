@@ -105,7 +105,10 @@ void parse_function_declaration() {
     
     // Type de retour
     VarType return_type = VAR_VOID;
-    if (tokens[current_token].type == TOKEN_INT) {
+    if (tokens[current_token].type == TOKEN_VOID) {
+        return_type = VAR_VOID;
+        current_token++;
+    } else if (tokens[current_token].type == TOKEN_INT) {
         return_type = VAR_INT;
         current_token++;
     } else if (tokens[current_token].type == TOKEN_FLOAT) {

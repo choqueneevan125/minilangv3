@@ -11,21 +11,29 @@ VarScope *current_scope = NULL;
 ReturnValue return_value = {false, {VAR_VOID, {0}}};
 
 int main(int argc, char *argv[]) {
+    // Gestion des arguments
     if (argc < 2) {
-        printf("Usage: %s <fichier.ml>\n", argv[0]);
-        printf("\nMiniLang v3 - Langage de programmation complet\n");
-        printf("Fonctionnalités:\n");
-        printf("  - Types: int, float, str, tableaux\n");
-        printf("  - Opérateurs: arithmétiques, comparaison, logiques\n");
-        printf("  - Structures: if/else, while, for\n");
-        printf("  - Fonctions avec paramètres et retour\n");
-        printf("  - Commentaires // et /* */\n");
+        print_help();
         return 1;
     }
     
+    // Option --version ou -v
+    if (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0) {
+        print_version();
+        return 0;
+    }
+    
+    // Option --help ou -h
+    if (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {
+        print_help();
+        return 0;
+    }
+    
+    // Exécution d'un fichier
     FILE *file = fopen(argv[1], "r");
     if (file == NULL) {
         fprintf(stderr, "Erreur: impossible d'ouvrir le fichier %s\n", argv[1]);
+        fprintf(stderr, "Utilisez 'minilang --help' pour plus d'informations\n");
         return 1;
     }
     
