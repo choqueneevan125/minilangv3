@@ -48,6 +48,13 @@ ExprResult call_function(const char *func_name) {
             } else if (param->type == VAR_FLOAT) {
                 var->value.float_val = (arg_value.type == VAR_INT) ? 
                     (float)arg_value.value.int_val : arg_value.value.float_val;
+            } else if (param->type == VAR_STRING) {
+                // CORRECTION: Copier la chaîne pour les paramètres string
+                if (arg_value.type == VAR_STRING && arg_value.value.str_val != NULL) {
+                    var->value.str_val = strdup(arg_value.value.str_val);
+                } else {
+                    var->value.str_val = NULL;
+                }
             }
         }
         

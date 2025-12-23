@@ -6,8 +6,10 @@ OBJECTS = $(SOURCES:.c=.o)
 HEADERS = minilang.h version.h
 
 all: $(TARGET)
-	@echo "✓ MiniLang v3.1.0 compilé avec succès"
-	@echo "  Nouvelles fonctionnalités:"
+	@echo "✓ MiniLang v3.1.1 compilé avec succès"
+	@echo "  Correctif:"
+	@echo "    - BUG CRITIQUE: Gestion des chaînes en paramètres"
+	@echo "  Fonctionnalités:"
 	@echo "    - Support void pour les procédures"
 	@echo "    - Système de versioning (--version)"
 	@echo "    - Aide intégrée (--help)"
@@ -57,7 +59,7 @@ help-cmd: $(TARGET)
 # Tests complets
 test-all: $(TARGET)
 	@echo "╔══════════════════════════════════════╗"
-	@echo "║   Tests MiniLang v3.1 - Void        ║"
+	@echo "║   Tests MiniLang v3.1.1 - Bugfix    ║"
 	@echo "╚══════════════════════════════════════╝"
 	@echo ""
 	@echo "┌─ Test 1: Procédures void ─────────────┐"

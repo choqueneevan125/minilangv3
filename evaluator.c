@@ -53,6 +53,14 @@ ExprResult parse_factor() {
         return result;
     }
     
+    // CORRECTION: Chaîne littérale
+    if (token.type == TOKEN_STRING) {
+        result.type = VAR_STRING;
+        result.value.str_val = token.value;  // Pointer directement vers le token
+        current_token++;
+        return result;
+    }
+    
     // Variable ou appel de fonction
     if (token.type == TOKEN_IDENTIFIER) {
         char *name = token.value;

@@ -4,9 +4,9 @@
 // Version de MiniLang
 #define MINILANG_VERSION_MAJOR 3
 #define MINILANG_VERSION_MINOR 1
-#define MINILANG_VERSION_PATCH 0
+#define MINILANG_VERSION_PATCH 1
 
-#define MINILANG_VERSION "3.1.0"
+#define MINILANG_VERSION "3.1.1"
 #define MINILANG_BUILD_DATE __DATE__
 #define MINILANG_BUILD_TIME __TIME__
 
@@ -29,6 +29,7 @@
 // Historique des versions
 #define MINILANG_CHANGELOG \
     "Historique:\n" \
+    "  v3.1.1 - CORRECTIF: Gestion des chaînes en paramètres\n" \
     "  v3.1.0 - Support void, système de versioning\n" \
     "  v3.0.0 - Fonctions, architecture modulaire\n" \
     "  v2.0.0 - Structures de contrôle, tableaux\n" \
