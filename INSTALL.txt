@@ -1,0 +1,153 @@
+=============================================================================
+  MINILANG v3.2.0 - INSTALLATION
+=============================================================================
+
+📦 CONTENU DU PACKAGE
+---------------------
+✓ 9 fichiers sources (.c et .h)
+✓ 1 Makefile
+✓ 6 fichiers de tests (.ml)
+✓ Documentation complète (README.md)
+
+🚀 INSTALLATION EN 3 ÉTAPES
+----------------------------
+
+1. COMPILER
+   $ make
+
+2. TESTER
+   $ ./minilang --version
+
+3. EXÉCUTER
+   $ ./minilang hello.ml
+
+C'EST TOUT ! 🎉
+
+=============================================================================
+
+📋 VÉRIFICATION DES FICHIERS
+-----------------------------
+Vous devez avoir ces 16 fichiers minimum :
+
+Sources (9) :
+  ✓ minilang.h
+  ✓ version.h
+  ✓ main.c
+  ✓ lexer.c
+  ✓ parser.c
+  ✓ evaluator.c
+  ✓ symbols.c
+  ✓ utils.c
+  ✓ version.c
+
+Build (1) :
+  ✓ Makefile
+
+Tests (6) :
+  ✓ test_bool.ml
+  ✓ test_break_continue.ml
+  ✓ test_input.ml
+  ✓ test_functions.ml
+  ✓ test_factorial.ml
+  ✓ test_fibonacci_func.ml
+
+Documentation (1) :
+  ✓ README.md
+
+=============================================================================
+
+🔧 COMMANDES UTILES
+-------------------
+
+# Compiler
+make
+
+# Nettoyer
+make clean
+
+# Tester
+make test
+
+# Version
+./minilang --version
+
+# Aide
+./minilang --help
+
+# Exécuter un programme
+./minilang fichier.ml
+
+=============================================================================
+
+⚠️ EN CAS DE PROBLÈME
+----------------------
+
+ERREUR: "make: command not found"
+SOLUTION: sudo apt-get install build-essential
+
+ERREUR: "gcc: command not found"  
+SOLUTION: sudo apt-get install gcc
+
+ERREUR: Compilation échoue
+SOLUTION: Vérifiez que TOUS les fichiers sont présents
+          Relancez: make clean && make
+
+=============================================================================
+
+📚 PREMIER PROGRAMME
+--------------------
+
+Créez un fichier "test.ml" :
+
+    print("Hello MiniLang!");
+    int x = 42;
+    print(x);
+
+Exécutez :
+
+    ./minilang test.ml
+
+=============================================================================
+
+✅ VÉRIFICATION RAPIDE
+-----------------------
+
+$ ls *.c *.h Makefile
+  → Vous devez voir 9 fichiers .c et 2 fichiers .h
+
+$ make
+  → Doit afficher "✓ MiniLang v3.2.0 compilé avec succès"
+
+$ ./minilang --version
+  → Doit afficher "MiniLang v3.2.0"
+
+$ ./minilang test_bool.ml
+  → Doit exécuter le test sans erreur
+
+=============================================================================
+
+🎓 DOCUMENTATION COMPLÈTE
+--------------------------
+Consultez README.md pour :
+  - Exemples de code détaillés
+  - Référence complète du langage
+  - Guide de dépannage
+  - Tutoriels
+
+=============================================================================
+
+💡 ASTUCES
+----------
+
+1. Commencez par les tests fournis pour comprendre le langage
+2. Consultez README.md pour des exemples avancés
+3. Utilisez --help pour voir toutes les options
+
+=============================================================================
+
+Version: 3.2.0
+Date: 24 Décembre 2025
+Package: COMPLET - Prêt à l'emploi
+Auteur: Claude
+
+TOUT EST INCLUS - AUCUN TÉLÉCHARGEMENT SUPPLÉMENTAIRE REQUIS ! ✨

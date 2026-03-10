@@ -5,6 +5,58 @@ void parse_statement();
 void parse_block();
 
 // ============================================================================
+// UTILITAIRES POUR CHAÎNES
+// ============================================================================
+
+// Convertir une valeur en chaîne
+char *value_to_string(ExprResult result) {
+    static char buffer[256];
+    
+    switch (result.type) {
+        case VAR_INT:
+        case VAR_BOOL:
+            snprintf(buffer, sizeof(buffer), "%d", result.value.int_val);
+            return strdup(buffer);
+        case VAR_FLOAT:
+            snprintf(buffer, sizeof(buffer), "%g", result.value.float_val);
+            return strdup(buffer);
+        case VAR_STRING:
+            return result.value.str_val ? strdup(result.value.str_val) : strdup("");
+        default:
+            return strdup("");
+    }
+}
+
+// Concaténer deux chaînes
+char *concat_strings(const char *s1, const char *s2) {
+    if (s1 == NULL) s1 = "";
+    if (s2 == NULL) s2 = "";
+    
+    size_t len1 = strlen(s1);
+    size_t len2 = strlen(s2);
+    char *result = malloc(len1 + len2 + 1);
+    
+    strcpy(result, s1);
+    strcat(result, s2);
+    
+    return result;
+}
+
+// Lire une ligne depuis stdin
+char *read_input() {
+    char buffer[1024];
+    if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
+        // Supprimer le \n final
+        size_t len = strlen(buffer);
+        if (len > 0 && buffer[len - 1] == '\n') {
+            buffer[len - 1] = '\0';
+        }
+        return strdup(buffer);
+    }
+    return strdup("");
+}
+
+// ============================================================================
 // APPEL DE FONCTION
 // ============================================================================
 
@@ -55,6 +107,8 @@ ExprResult call_function(const char *func_name) {
                 } else {
                     var->value.str_val = NULL;
                 }
+            } else if (param->type == VAR_BOOL) {
+                var->value.int_val = is_true(arg_value) ? 1 : 0;
             }
         }
         
@@ -124,6 +178,9 @@ void parse_function_declaration() {
     } else if (tokens[current_token].type == TOKEN_STR) {
         return_type = VAR_STRING;
         current_token++;
+    } else if (tokens[current_token].type == TOKEN_BOOL) {
+        return_type = VAR_BOOL;
+        current_token++;
     }
     
     // Nom de la fonction
@@ -162,6 +219,8 @@ void parse_function_declaration() {
             param_type = VAR_FLOAT;
         } else if (tokens[current_token].type == TOKEN_STR) {
             param_type = VAR_STRING;
+        } else if (tokens[current_token].type == TOKEN_BOOL) {
+            param_type = VAR_BOOL;
         } else {
             print_error("Type de paramètre attendu", tokens[current_token].line);
             break;
@@ -237,7 +296,9 @@ void parse_block() {
     while (current_token < token_count && 
            tokens[current_token].type != TOKEN_RBRACE && 
            tokens[current_token].type != TOKEN_EOF &&
-           !return_value.has_return) {
+           !return_value.has_return &&
+           !control_flow.break_flag &&
+           !control_flow.continue_flag) {
         parse_statement();
     }
     
@@ -274,6 +335,26 @@ void parse_statement() {
         return;
     }
     
+    // Break
+    if (token.type == TOKEN_BREAK) {
+        control_flow.break_flag = true;
+        current_token++;
+        if (tokens[current_token].type == TOKEN_SEMICOLON) {
+            current_token++;
+        }
+        return;
+    }
+    
+    // Continue
+    if (token.type == TOKEN_CONTINUE) {
+        control_flow.continue_flag = true;
+        current_token++;
+        if (tokens[current_token].type == TOKEN_SEMICOLON) {
+            current_token++;
+        }
+        return;
+    }
+    
     // Déclaration de fonction
     if (token.type == TOKEN_FUNC) {
         parse_function_declaration();
@@ -281,9 +362,10 @@ void parse_statement() {
     }
     
     // Déclaration de variable
-    if (token.type == TOKEN_INT || token.type == TOKEN_FLOAT || token.type == TOKEN_STR) {
+    if (token.type == TOKEN_INT || token.type == TOKEN_FLOAT || token.type == TOKEN_STR || token.type == TOKEN_BOOL) {
         VarType type = (token.type == TOKEN_INT) ? VAR_INT : 
-                      (token.type == TOKEN_FLOAT) ? VAR_FLOAT : VAR_STRING;
+                      (token.type == TOKEN_FLOAT) ? VAR_FLOAT :
+                      (token.type == TOKEN_BOOL) ? VAR_BOOL : VAR_STRING;
         current_token++;
         
         if (tokens[current_token].type != TOKEN_IDENTIFIER) {
@@ -343,6 +425,8 @@ void parse_statement() {
                         } else {
                             var->value.float_val = result.value.float_val;
                         }
+                    } else if (type == VAR_BOOL) {
+                        var->value.int_val = is_true(result) ? 1 : 0;
                     }
                 }
             }
@@ -399,7 +483,51 @@ void parse_statement() {
             Variable *var = find_variable(name);
             
             if (var != NULL) {
-                if (tokens[current_token].type == TOKEN_STRING) {
+                // Gestion de input()
+                if (tokens[current_token].type == TOKEN_INPUT) {
+                    current_token++;
+                    
+                    if (tokens[current_token].type != TOKEN_LPAREN) {
+                        print_error("'(' attendu après input", token.line);
+                        return;
+                    }
+                    current_token++;
+                    
+                    // Prompt optionnel
+                    if (tokens[current_token].type == TOKEN_STRING) {
+                        printf("%s", tokens[current_token].value);
+                        fflush(stdout);
+                        current_token++;
+                    }
+                    
+                    if (tokens[current_token].type != TOKEN_RPAREN) {
+                        print_error("')' attendu", token.line);
+                        return;
+                    }
+                    current_token++;
+                    
+                    // Lire l'entrée
+                    char *input_str = read_input();
+                    
+                    // Convertir selon le type
+                    if (var->type == VAR_STRING) {
+                        if (var->value.str_val != NULL) {
+                            free(var->value.str_val);
+                        }
+                        var->value.str_val = input_str;
+                    } else if (var->type == VAR_INT) {
+                        var->value.int_val = atoi(input_str);
+                        free(input_str);
+                    } else if (var->type == VAR_FLOAT) {
+                        var->value.float_val = atof(input_str);
+                        free(input_str);
+                    } else if (var->type == VAR_BOOL) {
+                        var->value.int_val = (strcmp(input_str, "true") == 0 || 
+                                             strcmp(input_str, "1") == 0) ? 1 : 0;
+                        free(input_str);
+                    }
+                }
+                else if (tokens[current_token].type == TOKEN_STRING) {
                     if (var->type == VAR_STRING) {
                         if (var->value.str_val != NULL) {
                             free(var->value.str_val);
@@ -448,6 +576,8 @@ void parse_statement() {
                 printf("%g\n", result.value.float_val);
             } else if (result.type == VAR_STRING) {
                 printf("%s\n", result.value.str_val);
+            } else if (result.type == VAR_BOOL) {
+                printf("%s\n", result.value.int_val ? "true" : "false");
             }
         }
         
@@ -570,10 +700,19 @@ void parse_statement() {
         while (is_true(condition) && !return_value.has_return) {
             current_token = body_start;
             
+            // Réinitialiser continue_flag
+            control_flow.continue_flag = false;
+            
             if (tokens[current_token].type == TOKEN_LBRACE) {
                 parse_block();
             } else {
                 parse_statement();
+            }
+            
+            // Si break, sortir
+            if (control_flow.break_flag) {
+                control_flow.break_flag = false;
+                break;
             }
             
             current_token = condition_start;
@@ -647,19 +786,39 @@ void parse_statement() {
         while (is_true(condition) && !return_value.has_return) {
             current_token = body_start;
             
+            control_flow.continue_flag = false;
+            
             if (tokens[current_token].type == TOKEN_LBRACE) {
                 parse_block();
             } else {
                 parse_statement();
             }
             
-            current_token = increment_start;
-            while (current_token < increment_end && tokens[current_token].type != TOKEN_RPAREN) {
-                if (tokens[current_token].type == TOKEN_IDENTIFIER) {
-                    parse_statement();
-                    break;
+            if (control_flow.break_flag) {
+                control_flow.break_flag = false;
+                break;
+            }
+            
+            // Exécuter l'incrément seulement si pas de continue
+            if (!control_flow.continue_flag) {
+                current_token = increment_start;
+                while (current_token < increment_end && tokens[current_token].type != TOKEN_RPAREN) {
+                    if (tokens[current_token].type == TOKEN_IDENTIFIER) {
+                        parse_statement();
+                        break;
+                    }
+                    current_token++;
                 }
-                current_token++;
+            } else {
+                // Même avec continue, exécuter l'incrément
+                current_token = increment_start;
+                while (current_token < increment_end && tokens[current_token].type != TOKEN_RPAREN) {
+                    if (tokens[current_token].type == TOKEN_IDENTIFIER) {
+                        parse_statement();
+                        break;
+                    }
+                    current_token++;
+                }
             }
             
             current_token = condition_start;

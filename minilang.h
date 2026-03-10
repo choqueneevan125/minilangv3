@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <stdbool.h>
+#include <ctype.h>
 #include "version.h"
 
 // ============================================================================
@@ -14,40 +14,41 @@
 
 // Types de tokens
 typedef enum {
-    TOKEN_INT, TOKEN_FLOAT, TOKEN_STR, TOKEN_VOID,
+    TOKEN_INT, TOKEN_FLOAT, TOKEN_STR, TOKEN_VOID, TOKEN_BOOL,
     TOKEN_IDENTIFIER, TOKEN_NUMBER, TOKEN_STRING,
-    TOKEN_ASSIGN, TOKEN_PRINT, TOKEN_LPAREN, TOKEN_RPAREN,
+    TOKEN_ASSIGN, TOKEN_PRINT, TOKEN_INPUT, TOKEN_LPAREN, TOKEN_RPAREN,
     TOKEN_SEMICOLON, TOKEN_EOF, TOKEN_COMMA,
     TOKEN_PLUS, TOKEN_MINUS, TOKEN_MULT, TOKEN_DIV, TOKEN_MOD,
     TOKEN_EQ, TOKEN_NEQ, TOKEN_LT, TOKEN_GT, TOKEN_LTE, TOKEN_GTE,
     TOKEN_AND, TOKEN_OR, TOKEN_NOT,
     TOKEN_IF, TOKEN_ELSE, TOKEN_WHILE, TOKEN_FOR,
     TOKEN_LBRACE, TOKEN_RBRACE, TOKEN_LBRACKET, TOKEN_RBRACKET,
-    TOKEN_FUNC, TOKEN_RETURN
+    TOKEN_FUNC, TOKEN_RETURN, TOKEN_BREAK, TOKEN_CONTINUE,
+    TOKEN_TRUE, TOKEN_FALSE,
+    TOKEN_CONCAT
 } TokenType;
 
-// Structure Token
+// Types de variables
+typedef enum {
+    VAR_INT, VAR_FLOAT, VAR_STRING, VAR_ARRAY, VAR_VOID, VAR_BOOL
+} VarType;
+
+// Structure d'un token
 typedef struct {
     TokenType type;
     char *value;
     int line;
 } Token;
 
-// Types de variables
-typedef enum {
-    VAR_INT, VAR_FLOAT, VAR_STRING, VAR_ARRAY, VAR_VOID
-} VarType;
-
-// Structure pour tableaux
+// Structure pour les tableaux
 typedef struct {
-    int *int_array;
-    float *float_array;
-    char **str_array;
     int size;
     VarType elem_type;
+    int *int_array;
+    float *float_array;
 } Array;
 
-// Structure Variable
+// Structure d'une variable
 typedef struct Variable {
     char *name;
     VarType type;
@@ -80,15 +81,15 @@ typedef struct Param {
 // Structure pour les fonctions
 typedef struct Function {
     char *name;
+    VarType return_type;
     Param *params;
     int param_count;
-    VarType return_type;
     int body_start;
     int body_end;
     struct Function *next;
 } Function;
 
-// Stack pour les scopes de variables
+// Structure pour les scopes
 typedef struct VarScope {
     Variable *vars;
     struct VarScope *parent;
@@ -99,6 +100,12 @@ typedef struct {
     bool has_return;
     ExprResult value;
 } ReturnValue;
+
+// Flags de contrôle de flux
+typedef struct {
+    bool break_flag;
+    bool continue_flag;
+} ControlFlow;
 
 // ============================================================================
 // VARIABLES GLOBALES
@@ -112,13 +119,14 @@ extern int current_token;
 extern int current_line;
 extern VarScope *current_scope;
 extern ReturnValue return_value;
+extern ControlFlow control_flow;
 
 // ============================================================================
 // PROTOTYPES - LEXER
 // ============================================================================
 
 void lexer(const char *source);
-Token create_token(TokenType type, const char *value, int line);
+void free_tokens();
 
 // ============================================================================
 // PROTOTYPES - PARSER
@@ -129,37 +137,39 @@ void parse_statement();
 void parse_block();
 void parse_function_declaration();
 ExprResult call_function(const char *func_name);
+char *concat_strings(const char *s1, const char *s2);
+char *value_to_string(ExprResult result);
 
 // ============================================================================
 // PROTOTYPES - EVALUATOR
 // ============================================================================
 
-ExprResult evaluate_expression();
-ExprResult evaluate_comparison();
 ExprResult evaluate_logical();
+ExprResult evaluate_comparison();
+ExprResult evaluate_expression();
 ExprResult parse_term();
 ExprResult parse_factor();
 bool is_true(ExprResult result);
 
 // ============================================================================
-// PROTOTYPES - SYMBOLES (Variables et Fonctions)
+// PROTOTYPES - SYMBOLS
 // ============================================================================
 
-Variable *find_variable(const char *name);
 void add_variable(const char *name, VarType type);
-Function *find_function(const char *name);
+Variable *find_variable(const char *name);
+void free_variables();
+
 void add_function(Function *func);
+Function *find_function(const char *name);
+void free_functions();
+
 void push_scope();
 void pop_scope();
 
 // ============================================================================
-// PROTOTYPES - UTILITAIRES
+// PROTOTYPES - UTILS
 // ============================================================================
 
-void free_tokens();
-void free_variables();
-void free_functions();
-const char *type_to_string(VarType type);
 void print_error(const char *message, int line);
 
 #endif // MINILANG_H

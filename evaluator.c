@@ -2,7 +2,7 @@
 
 // Vérifier si le résultat est vrai
 bool is_true(ExprResult result) {
-    if (result.type == VAR_INT) {
+    if (result.type == VAR_INT || result.type == VAR_BOOL) {
         return result.value.int_val != 0;
     } else if (result.type == VAR_FLOAT) {
         return result.value.float_val != 0.0;
@@ -61,6 +61,21 @@ ExprResult parse_factor() {
         return result;
     }
     
+    // Bool
+    if (token.type == TOKEN_TRUE) {
+        result.type = VAR_BOOL;
+        result.value.int_val = 1;
+        current_token++;
+        return result;
+    }
+    
+    if (token.type == TOKEN_FALSE) {
+        result.type = VAR_BOOL;
+        result.value.int_val = 0;
+        current_token++;
+        return result;
+    }
+    
     // Variable ou appel de fonction
     if (token.type == TOKEN_IDENTIFIER) {
         char *name = token.value;
@@ -104,6 +119,8 @@ ExprResult parse_factor() {
                 result.value.float_val = var->value.float_val;
             } else if (var->type == VAR_STRING) {
                 result.value.str_val = var->value.str_val;
+            } else if (var->type == VAR_BOOL) {
+                result.value.int_val = var->value.int_val;
             }
         }
         return result;
@@ -164,7 +181,7 @@ ExprResult parse_term() {
     return left;
 }
 
-// Évaluer une expression arithmétique (addition, soustraction)
+// Évaluer une expression arithmétique (addition, soustraction, concaténation)
 ExprResult evaluate_expression() {
     ExprResult left = parse_term();
     
@@ -176,7 +193,21 @@ ExprResult evaluate_expression() {
             current_token++;
             ExprResult right = parse_term();
             
-            if (left.type == VAR_FLOAT || right.type == VAR_FLOAT) {
+            // Concaténation de chaînes avec +
+            if (op == TOKEN_PLUS && (left.type == VAR_STRING || right.type == VAR_STRING)) {
+                char *left_str = value_to_string(left);
+                char *right_str = value_to_string(right);
+                char *result_str = concat_strings(left_str, right_str);
+                
+                // Libérer les chaînes temporaires
+                free(left_str);
+                free(right_str);
+                
+                left.type = VAR_STRING;
+                left.value.str_val = result_str;
+            }
+            // Arithmétique normale
+            else if (left.type == VAR_FLOAT || right.type == VAR_FLOAT) {
                 float left_val = (left.type == VAR_FLOAT) ? left.value.float_val : (float)left.value.int_val;
                 float right_val = (right.type == VAR_FLOAT) ? right.value.float_val : (float)right.value.int_val;
                 

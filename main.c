@@ -1,6 +1,9 @@
 #include "minilang.h"
 
-// Définition des variables globales
+// ============================================================================
+// DÉFINITION DES VARIABLES GLOBALES
+// ============================================================================
+
 Variable *variables = NULL;
 Function *functions = NULL;
 Token *tokens = NULL;
@@ -9,6 +12,11 @@ int current_token = 0;
 int current_line = 1;
 VarScope *current_scope = NULL;
 ReturnValue return_value = {false, {VAR_VOID, {0}}};
+ControlFlow control_flow = {false, false};
+
+// ============================================================================
+// FONCTION PRINCIPALE
+// ============================================================================
 
 int main(int argc, char *argv[]) {
     // Gestion des arguments
@@ -29,7 +37,7 @@ int main(int argc, char *argv[]) {
         return 0;
     }
     
-    // Exécution d'un fichier
+    // Ouverture du fichier source
     FILE *file = fopen(argv[1], "r");
     if (file == NULL) {
         fprintf(stderr, "Erreur: impossible d'ouvrir le fichier %s\n", argv[1]);
@@ -37,6 +45,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     
+    // Lecture du contenu
     fseek(file, 0, SEEK_END);
     long size = ftell(file);
     fseek(file, 0, SEEK_SET);

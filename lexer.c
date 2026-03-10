@@ -69,13 +69,19 @@ void lexer(const char *source) {
             else if (strcmp(word, "float") == 0) type = TOKEN_FLOAT;
             else if (strcmp(word, "str") == 0) type = TOKEN_STR;
             else if (strcmp(word, "void") == 0) type = TOKEN_VOID;
+            else if (strcmp(word, "bool") == 0) type = TOKEN_BOOL;
+            else if (strcmp(word, "true") == 0) type = TOKEN_TRUE;
+            else if (strcmp(word, "false") == 0) type = TOKEN_FALSE;
             else if (strcmp(word, "print") == 0) type = TOKEN_PRINT;
+            else if (strcmp(word, "input") == 0) type = TOKEN_INPUT;
             else if (strcmp(word, "if") == 0) type = TOKEN_IF;
             else if (strcmp(word, "else") == 0) type = TOKEN_ELSE;
             else if (strcmp(word, "while") == 0) type = TOKEN_WHILE;
             else if (strcmp(word, "for") == 0) type = TOKEN_FOR;
             else if (strcmp(word, "func") == 0) type = TOKEN_FUNC;
             else if (strcmp(word, "return") == 0) type = TOKEN_RETURN;
+            else if (strcmp(word, "break") == 0) type = TOKEN_BREAK;
+            else if (strcmp(word, "continue") == 0) type = TOKEN_CONTINUE;
             
             tokens[token_count++] = create_token(type, word, line);
             free(word);
@@ -165,4 +171,18 @@ void lexer(const char *source) {
     }
     
     tokens[token_count++] = create_token(TOKEN_EOF, "", line);
+}
+
+// Libérer les tokens
+void free_tokens() {
+    for (int i = 0; i < token_count; i++) {
+        if (tokens[i].value != NULL) {
+            free(tokens[i].value);
+        }
+    }
+    if (tokens != NULL) {
+        free(tokens);
+        tokens = NULL;
+    }
+    token_count = 0;
 }
