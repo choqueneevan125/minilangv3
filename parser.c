@@ -416,17 +416,30 @@ void parse_statement() {
                     if (type == VAR_INT) {
                         if (result.type == VAR_FLOAT) {
                             var->value.int_val = (int)result.value.float_val;
+                        } else if (result.type == VAR_STRING) {
+                            var->value.int_val = atoi(result.value.str_val);
                         } else {
                             var->value.int_val = result.value.int_val;
                         }
                     } else if (type == VAR_FLOAT) {
                         if (result.type == VAR_INT) {
                             var->value.float_val = (float)result.value.int_val;
+                        } else if (result.type == VAR_STRING) {
+                            var->value.float_val = atof(result.value.str_val);
                         } else {
                             var->value.float_val = result.value.float_val;
                         }
                     } else if (type == VAR_BOOL) {
-                        var->value.int_val = is_true(result) ? 1 : 0;
+                        if (result.type == VAR_STRING) {
+                            var->value.int_val = (strcmp(result.value.str_val, "true") == 0 || 
+                                                 strcmp(result.value.str_val, "1") == 0) ? 1 : 0;
+                        } else {
+                            var->value.int_val = is_true(result) ? 1 : 0;
+                        }
+                    } else if (type == VAR_STRING) {
+                        if (result.type == VAR_STRING) {
+                            var->value.str_val = strdup(result.value.str_val);
+                        }
                     }
                 }
             }

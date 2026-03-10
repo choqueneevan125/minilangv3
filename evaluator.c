@@ -76,6 +76,48 @@ ExprResult parse_factor() {
         return result;
     }
     
+    // Input - Lecture depuis stdin
+    if (token.type == TOKEN_INPUT) {
+        current_token++;
+        
+        // Vérifier (
+        if (tokens[current_token].type != TOKEN_LPAREN) {
+            print_error("'(' attendu après input", token.line);
+            return result;
+        }
+        current_token++;
+        
+        // Prompt optionnel
+        if (tokens[current_token].type == TOKEN_STRING) {
+            printf("%s", tokens[current_token].value);
+            fflush(stdout);
+            current_token++;
+        }
+        
+        // Vérifier )
+        if (tokens[current_token].type != TOKEN_RPAREN) {
+            print_error("')' attendu", token.line);
+            return result;
+        }
+        current_token++;
+        
+        // Lire l'entrée
+        char buffer[1024];
+        if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
+            size_t len = strlen(buffer);
+            if (len > 0 && buffer[len - 1] == '\n') {
+                buffer[len - 1] = '\0';
+            }
+            result.type = VAR_STRING;
+            result.value.str_val = strdup(buffer);
+        } else {
+            result.type = VAR_STRING;
+            result.value.str_val = strdup("");
+        }
+        
+        return result;
+    }
+    
     // Variable ou appel de fonction
     if (token.type == TOKEN_IDENTIFIER) {
         char *name = token.value;
