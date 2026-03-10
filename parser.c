@@ -14,9 +14,10 @@ char *value_to_string(ExprResult result) {
     
     switch (result.type) {
         case VAR_INT:
-        case VAR_BOOL:
             snprintf(buffer, sizeof(buffer), "%d", result.value.int_val);
             return strdup(buffer);
+        case VAR_BOOL:
+            return strdup(result.value.int_val ? "true" : "false");
         case VAR_FLOAT:
             snprintf(buffer, sizeof(buffer), "%g", result.value.float_val);
             return strdup(buffer);
@@ -576,22 +577,18 @@ void parse_statement() {
         }
         current_token++;
         
-        if (tokens[current_token].type == TOKEN_STRING) {
-            printf("%s\n", tokens[current_token].value);
-            current_token++;
-        } else {
-            // Utiliser evaluate_logical qui gère les appels de fonction
-            ExprResult result = evaluate_logical();
-            
-            if (result.type == VAR_INT) {
-                printf("%d\n", result.value.int_val);
-            } else if (result.type == VAR_FLOAT) {
-                printf("%g\n", result.value.float_val);
-            } else if (result.type == VAR_STRING) {
-                printf("%s\n", result.value.str_val);
-            } else if (result.type == VAR_BOOL) {
-                printf("%s\n", result.value.int_val ? "true" : "false");
-            }
+        // Toujours évaluer l'expression (même pour les chaînes simples)
+        // Cela permet de gérer la concaténation
+        ExprResult result = evaluate_logical();
+        
+        if (result.type == VAR_INT) {
+            printf("%d\n", result.value.int_val);
+        } else if (result.type == VAR_FLOAT) {
+            printf("%g\n", result.value.float_val);
+        } else if (result.type == VAR_STRING) {
+            printf("%s\n", result.value.str_val);
+        } else if (result.type == VAR_BOOL) {
+            printf("%s\n", result.value.int_val ? "true" : "false");
         }
         
         if (tokens[current_token].type != TOKEN_RPAREN) {
