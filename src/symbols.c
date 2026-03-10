@@ -1,4 +1,4 @@
-#include "minilang.h"
+#include "../include/minilang.h"
 
 // ============================================================================
 // GESTION DES VARIABLES

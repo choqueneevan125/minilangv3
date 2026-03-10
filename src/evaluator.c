@@ -1,4 +1,4 @@
-#include "minilang.h"
+#include "../include/minilang.h"
 
 // Vérifier si le résultat est vrai
 bool is_true(ExprResult result) {

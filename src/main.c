@@ -1,4 +1,4 @@
-#include "minilang.h"
+#include "../include/minilang.h"
 
 // ============================================================================
 // DÉFINITION DES VARIABLES GLOBALES

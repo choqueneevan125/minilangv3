@@ -1,4 +1,4 @@
-#include "minilang.h"
+#include "../include/minilang.h"
 
 // Créer un token
 Token create_token(TokenType type, const char *value, int line) {

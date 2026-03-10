@@ -1,4 +1,4 @@
-#include "minilang.h"
+#include "../include/minilang.h"
 
 void print_version() {
     printf("MiniLang v%s\n", MINILANG_VERSION);
