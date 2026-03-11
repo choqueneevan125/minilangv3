@@ -1,48 +1,38 @@
-// Test opérateurs d'assignation composés - v3.3.0
+// Test des opérateurs composés
 
-print("=== TEST OPÉRATEURS COMPOSÉS ===");
+print("=== TEST OPERATEURS COMPOSES ===");
 
-// Test +=
 int x = 10;
-print("x = 10");
+print("x initial:");
+print(x);
+
 x += 5;
-print("x += 5");
-print(x);  // 15
+print("x += 5:");
+print(x);
 
-// Test -=
-int y = 20;
-print("y = 20");
-y -= 8;
-print("y -= 8");
-print(y);  // 12
+x -= 3;
+print("x -= 3:");
+print(x);
 
-// Test *=
-int z = 3;
-print("z = 3");
-z *= 4;
-print("z *= 4");
-print(z);  // 12
+x *= 2;
+print("x *= 2:");
+print(x);
 
-// Test /=
-int w = 100;
-print("w = 100");
-w /= 5;
-print("w /= 5");
-print(w);  // 20
+x /= 4;
+print("x /= 4:");
+print(x);
 
 // Test avec float
-float a = 10.5;
-print("a = 10.5");
-a += 2.3;
-print("a += 2.3");
-print(a);  // 12.8
+float y = 10.5;
+print("y initial:");
+print(y);
 
-// Test += avec chaînes
-str message = "Hello";
-print("message = Hello");
-message += " ";
-message += "World";
-print("message += World");
-print(message);  // Hello World
+y += 2.5;
+print("y += 2.5:");
+print(y);
+
+y *= 2;
+print("y *= 2:");
+print(y);
 
 print("=== FIN TEST ===");

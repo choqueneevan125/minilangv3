@@ -161,62 +161,6 @@ ExprResult parse_factor() {
                 result.value.float_val = var->value.float_val;
             } else if (var->type == VAR_STRING) {
                 result.value.str_val = var->value.str_val;
-                
-                // Méthodes sur chaînes (v3.3.0)
-                if (tokens[current_token].type == TOKEN_DOT) {
-                    current_token++;
-                    
-                    // .length()
-                    if (tokens[current_token].type == TOKEN_LENGTH) {
-                        current_token++;
-                        if (tokens[current_token].type == TOKEN_LPAREN) {
-                            current_token++;
-                            if (tokens[current_token].type == TOKEN_RPAREN) {
-                                current_token++;
-                            }
-                        }
-                        result.type = VAR_INT;
-                        result.value.int_val = var->value.str_val ? strlen(var->value.str_val) : 0;
-                        return result;
-                    }
-                    // .substring(start, end)
-                    else if (tokens[current_token].type == TOKEN_SUBSTRING) {
-                        current_token++;
-                        if (tokens[current_token].type == TOKEN_LPAREN) {
-                            current_token++;
-                            ExprResult start = evaluate_expression();
-                            int start_idx = start.value.int_val;
-                            
-                            if (tokens[current_token].type == TOKEN_COMMA) {
-                                current_token++;
-                            }
-                            
-                            ExprResult end = evaluate_expression();
-                            int end_idx = end.value.int_val;
-                            
-                            if (tokens[current_token].type == TOKEN_RPAREN) {
-                                current_token++;
-                            }
-                            
-                            // Créer substring
-                            if (var->value.str_val && start_idx >= 0 && end_idx >= start_idx) {
-                                int len = strlen(var->value.str_val);
-                                if (start_idx < len) {
-                                    if (end_idx > len) end_idx = len;
-                                    char *substr = (char*)malloc(end_idx - start_idx + 1);
-                                    strncpy(substr, var->value.str_val + start_idx, end_idx - start_idx);
-                                    substr[end_idx - start_idx] = '\0';
-                                    result.value.str_val = substr;
-                                } else {
-                                    result.value.str_val = strdup("");
-                                }
-                            } else {
-                                result.value.str_val = strdup("");
-                            }
-                            return result;
-                        }
-                    }
-                }
             } else if (var->type == VAR_BOOL) {
                 result.value.int_val = var->value.int_val;
             }
@@ -346,21 +290,15 @@ ExprResult evaluate_comparison() {
         ExprResult result;
         result.type = VAR_INT;
         
-        // Comparaison de chaînes (v3.3.0)
-        if (left.type == VAR_STRING || right.type == VAR_STRING) {
-            char *left_str = (left.type == VAR_STRING) ? left.value.str_val : "";
-            char *right_str = (right.type == VAR_STRING) ? right.value.str_val : "";
-            
-            int cmp = strcmp(left_str ? left_str : "", right_str ? right_str : "");
-            
-            switch (op) {
-                case TOKEN_EQ:  result.value.int_val = (cmp == 0); break;
-                case TOKEN_NEQ: result.value.int_val = (cmp != 0); break;
-                case TOKEN_LT:  result.value.int_val = (cmp < 0); break;
-                case TOKEN_GT:  result.value.int_val = (cmp > 0); break;
-                case TOKEN_LTE: result.value.int_val = (cmp <= 0); break;
-                case TOKEN_GTE: result.value.int_val = (cmp >= 0); break;
-                default: result.value.int_val = 0;
+        // Comparaison de chaînes (seulement == et !=)
+        if (left.type == VAR_STRING && right.type == VAR_STRING) {
+            if (op == TOKEN_EQ) {
+                result.value.int_val = (strcmp(left.value.str_val, right.value.str_val) == 0);
+            } else if (op == TOKEN_NEQ) {
+                result.value.int_val = (strcmp(left.value.str_val, right.value.str_val) != 0);
+            } else {
+                print_error("Opérateur non supporté pour les chaînes", token.line);
+                result.value.int_val = 0;
             }
         }
         // Comparaison numérique

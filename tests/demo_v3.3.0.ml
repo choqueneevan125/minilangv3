@@ -1,68 +1,70 @@
-// Programme complet v3.3.0 - Gestionnaire de noms
+// Démonstration MiniLang v3.3.0
 
-print("=== GESTIONNAIRE DE NOMS v3.3.0 ===");
+print("=== MINILANG v3.3.0 - DEMO ===");
 
-// Collecte de noms
-str nom1 = input("Premier nom: ");
-str nom2 = input("Deuxième nom: ");
-str nom3 = input("Troisième nom: ");
+// 1. Opérateurs composés
+print("--- Operateurs composes ---");
+int score = 100;
+print("Score initial: " + score);
 
-// Affichage avec longueurs
-print("--- Liste des noms ---");
-print(nom1 + " (longueur: " + nom1.length() + ")");
-print(nom2 + " (longueur: " + nom2.length() + ")");
-print(nom3 + " (longueur: " + nom3.length() + ")");
+score += 50;
+print("Apres bonus (+50): " + score);
 
-// Recherche
-str recherche = input("Nom à rechercher: ");
-bool trouve = false;
+score -= 30;
+print("Apres malus (-30): " + score);
 
-if (nom1 == recherche) {
-    print("Trouvé en position 1");
-    trouve = true;
-}
-if (nom2 == recherche) {
-    print("Trouvé en position 2");
-    trouve = true;
-}
-if (nom3 == recherche) {
-    print("Trouvé en position 3");
-    trouve = true;
-}
+score *= 2;
+print("Double points (*2): " + score);
 
-if (!trouve) {
-    print("Nom non trouvé");
+score /= 4;
+print("Division par 4: " + score);
+
+// 2. Comparaison de chaînes
+print("--- Comparaison de chaines ---");
+str motDePasse = "secret123";
+str tentative = input("Entrez le mot de passe: ");
+
+if (tentative == motDePasse) {
+    print("Acces autorise !");
+} else {
+    print("Acces refuse !");
 }
 
-// Tri alphabétique simple
-print("--- Ordre alphabétique ---");
-if (nom1 < nom2 && nom1 < nom3) {
-    print("Premier alphabétiquement: " + nom1);
+// 3. Programme interactif complet
+print("--- Mini Quiz ---");
+str nom = input("Votre nom: ");
+print("Bonjour " + nom + " !");
+
+int points = 0;
+
+print("Question 1: Combien font 5 + 3?");
+int rep1 = input("Reponse: ");
+if (rep1 == 8) {
+    print("Correct!");
+    points += 10;
+} else {
+    print("Faux!");
 }
-if (nom2 < nom1 && nom2 < nom3) {
-    print("Premier alphabétiquement: " + nom2);
+
+print("Question 2: Quelle est la capitale de la France?");
+str rep2 = input("Reponse: ");
+if (rep2 == "Paris") {
+    print("Correct!");
+    points += 10;
+} else {
+    print("Faux! C'etait Paris");
 }
-if (nom3 < nom1 && nom3 < nom2) {
-    print("Premier alphabétiquement: " + nom3);
+
+print("--- Resultats ---");
+print("Joueur: " + nom);
+print("Score: " + points + " / 20");
+
+if (points >= 15) {
+    print("Excellent!");
+} else if (points >= 10) {
+    print("Pas mal!");
+} else {
+    print("Retentez votre chance!");
 }
 
-// Statistiques
-print("--- Statistiques ---");
-int total_lettres = 0;
-total_lettres += nom1.length();
-total_lettres += nom2.length();
-total_lettres += nom3.length();
-print("Total de lettres: " + total_lettres);
-
-int moyenne = total_lettres / 3;
-print("Moyenne par nom: " + moyenne);
-
-// Extraire initiales
-print("--- Initiales ---");
-str initiales = "";
-initiales += nom1.substring(0, 1);
-initiales += nom2.substring(0, 1);
-initiales += nom3.substring(0, 1);
-print("Initiales: " + initiales);
-
-print("=== FIN ===");
+print("=== FIN DEMO ===");
