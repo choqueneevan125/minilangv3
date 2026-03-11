@@ -562,6 +562,53 @@ void parse_statement() {
                 }
             }
         }
+        // Opérateurs d'assignation composés (v3.3.0)
+        else if (tokens[current_token].type == TOKEN_PLUS_ASSIGN ||
+                 tokens[current_token].type == TOKEN_MINUS_ASSIGN ||
+                 tokens[current_token].type == TOKEN_MULT_ASSIGN ||
+                 tokens[current_token].type == TOKEN_DIV_ASSIGN) {
+            
+            TokenType op = tokens[current_token].type;
+            current_token++;
+            Variable *var = find_variable(name);
+            
+            if (var != NULL) {
+                ExprResult result = evaluate_logical();
+                
+                if (var->type == VAR_INT) {
+                    int right_val = (result.type == VAR_FLOAT) ? (int)result.value.float_val : result.value.int_val;
+                    if (op == TOKEN_PLUS_ASSIGN) {
+                        var->value.int_val += right_val;
+                    } else if (op == TOKEN_MINUS_ASSIGN) {
+                        var->value.int_val -= right_val;
+                    } else if (op == TOKEN_MULT_ASSIGN) {
+                        var->value.int_val *= right_val;
+                    } else if (op == TOKEN_DIV_ASSIGN) {
+                        var->value.int_val /= right_val;
+                    }
+                } else if (var->type == VAR_FLOAT) {
+                    float right_val = (result.type == VAR_INT) ? (float)result.value.int_val : result.value.float_val;
+                    if (op == TOKEN_PLUS_ASSIGN) {
+                        var->value.float_val += right_val;
+                    } else if (op == TOKEN_MINUS_ASSIGN) {
+                        var->value.float_val -= right_val;
+                    } else if (op == TOKEN_MULT_ASSIGN) {
+                        var->value.float_val *= right_val;
+                    } else if (op == TOKEN_DIV_ASSIGN) {
+                        var->value.float_val /= right_val;
+                    }
+                } else if (var->type == VAR_STRING && op == TOKEN_PLUS_ASSIGN) {
+                    char *left_str = var->value.str_val ? var->value.str_val : "";
+                    char *right_str = value_to_string(result);
+                    char *new_str = concat_strings(left_str, right_str);
+                    if (var->value.str_val != NULL) {
+                        free(var->value.str_val);
+                    }
+                    var->value.str_val = new_str;
+                    free(right_str);
+                }
+            }
+        }
         
         if (tokens[current_token].type == TOKEN_SEMICOLON) {
             current_token++;

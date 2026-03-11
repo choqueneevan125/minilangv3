@@ -3,10 +3,10 @@
 
 // Version de MiniLang
 #define MINILANG_VERSION_MAJOR 3
-#define MINILANG_VERSION_MINOR 2
-#define MINILANG_VERSION_PATCH 3
+#define MINILANG_VERSION_MINOR 3
+#define MINILANG_VERSION_PATCH 0
 
-#define MINILANG_VERSION "3.2.3"
+#define MINILANG_VERSION "3.3.0"
 
 // Date et heure de compilation
 #define MINILANG_BUILD_DATE __DATE__
@@ -15,11 +15,14 @@
 // Fonctionnalités de cette version
 #define MINILANG_FEATURES \
     "  - Types: int, float, str, bool, void, tableaux\n" \
-    "  - Opérateurs: arithmétiques, comparaison, logiques\n" \
+    "  - Opérateurs: arithmétiques, comparaison, logiques, assignation composés\n" \
     "  - Structures: if/else, while, for, break, continue\n" \
     "  - Fonctions avec paramètres et return\n" \
     "  - Procédures void (sans retour)\n" \
     "  - Type bool natif (true/false)\n" \
+    "  - Comparaison de chaînes (==, !=, <, >, <=, >=)\n" \
+    "  - Opérateurs +=, -=, *=, /=\n" \
+    "  - Méthodes sur chaînes: .length(), .substring()\n" \
     "  - Concaténation de chaînes avec +\n" \
     "  - input() pour lire l'entrée utilisateur\n" \
     "  - Scopes isolés\n" \
@@ -28,6 +31,7 @@
 // Historique des versions
 #define MINILANG_CHANGELOG \
     "Historique:\n" \
+    "  v3.3.0 - Comparaison chaînes, +=/-=/*=/=, .length()/.substring()\n" \
     "  v3.2.3 - Structure organisée (src/, include/, tests/)\n" \
     "  v3.2.2 - CORRECTIF: Concaténation complète\n" \
     "  v3.2.1 - CORRECTIF: input() fonctionnel\n" \

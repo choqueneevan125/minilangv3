@@ -82,6 +82,8 @@ void lexer(const char *source) {
             else if (strcmp(word, "return") == 0) type = TOKEN_RETURN;
             else if (strcmp(word, "break") == 0) type = TOKEN_BREAK;
             else if (strcmp(word, "continue") == 0) type = TOKEN_CONTINUE;
+            else if (strcmp(word, "length") == 0) type = TOKEN_LENGTH;
+            else if (strcmp(word, "substring") == 0) type = TOKEN_SUBSTRING;
             
             tokens[token_count++] = create_token(type, word, line);
             free(word);
@@ -147,6 +149,28 @@ void lexer(const char *source) {
             continue;
         }
         
+        // Opérateurs d'assignation composés (v3.3.0)
+        if (source[i] == '+' && i + 1 < len && source[i + 1] == '=') {
+            tokens[token_count++] = create_token(TOKEN_PLUS_ASSIGN, "+=", line);
+            i += 2;
+            continue;
+        }
+        if (source[i] == '-' && i + 1 < len && source[i + 1] == '=') {
+            tokens[token_count++] = create_token(TOKEN_MINUS_ASSIGN, "-=", line);
+            i += 2;
+            continue;
+        }
+        if (source[i] == '*' && i + 1 < len && source[i + 1] == '=') {
+            tokens[token_count++] = create_token(TOKEN_MULT_ASSIGN, "*=", line);
+            i += 2;
+            continue;
+        }
+        if (source[i] == '/' && i + 1 < len && source[i + 1] == '=') {
+            tokens[token_count++] = create_token(TOKEN_DIV_ASSIGN, "/=", line);
+            i += 2;
+            continue;
+        }
+        
         // Opérateurs simples
         switch (source[i]) {
             case '=': tokens[token_count++] = create_token(TOKEN_ASSIGN, "=", line); break;
@@ -166,6 +190,7 @@ void lexer(const char *source) {
             case '<': tokens[token_count++] = create_token(TOKEN_LT, "<", line); break;
             case '>': tokens[token_count++] = create_token(TOKEN_GT, ">", line); break;
             case '!': tokens[token_count++] = create_token(TOKEN_NOT, "!", line); break;
+            case '.': tokens[token_count++] = create_token(TOKEN_DOT, ".", line); break;
         }
         i++;
     }

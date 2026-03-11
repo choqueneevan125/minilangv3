@@ -26,16 +26,16 @@ HEADERS = $(wildcard $(INC_DIR)/*.h)
 
 all: $(BUILD_DIR) $(TARGET)
 	@echo ""
-	@echo "✓ MiniLang v3.2.3 compilé avec succès"
+	@echo "✓ MiniLang v3.3.0 compilé avec succès"
 	@echo "  Structure organisée :"
 	@echo "    src/      - Sources C"
 	@echo "    include/  - Headers"
 	@echo "    tests/    - Fichiers de test"
 	@echo ""
-	@echo "  Nouvelles fonctionnalités :"
-	@echo "    - input() fonctionnel"
-	@echo "    - Concaténation complète"
-	@echo "    - Structure professionnelle"
+	@echo "  Nouvelles fonctionnalités v3.3.0 :"
+	@echo "    - Comparaison de chaînes (==, !=, <, >, <=, >=)"
+	@echo "    - Opérateurs +=, -=, *=, /="
+	@echo "    - Méthodes .length() et .substring()"
 
 $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) $(OBJECTS) -o $(TARGET)
@@ -101,13 +101,18 @@ uninstall:
 # ============================================================================
 
 info:
-	@echo "MiniLang v3.2.3 - Structure du projet"
+	@echo "MiniLang v3.3.0 - Structure du projet"
 	@echo ""
 	@echo "Dossiers :"
 	@echo "  src/      - Sources C ($(words $(SOURCES)) fichiers)"
 	@echo "  include/  - Headers ($(words $(HEADERS)) fichiers)"
 	@echo "  tests/    - Tests .ml"
 	@echo "  build/    - Objets compilés (créé à la compilation)"
+	@echo ""
+	@echo "Nouveautés v3.3.0 :"
+	@echo "  - Comparaison de chaînes"
+	@echo "  - Opérateurs composés (+=, -=, *=, /=)"
+	@echo "  - Méthodes .length() et .substring()"
 	@echo ""
 	@echo "Commandes :"
 	@echo "  make              - Compiler"
