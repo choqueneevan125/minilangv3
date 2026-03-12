@@ -727,9 +727,104 @@ void parse_statement() {
                 parse_statement();
             }
             
+            // Sauter complètement le bloc else (y compris else if)
             if (else_pos != -1) {
                 current_token = else_pos;
-                if (tokens[current_token].type == TOKEN_LBRACE) {
+                
+                // Si c'est un "else if", sauter tout le if qui suit
+                if (tokens[current_token].type == TOKEN_IF) {
+                    // Sauter récursivement tout le bloc if/else if/else
+                    int if_depth = 1;
+                    current_token++; // Sauter TOKEN_IF
+                    
+                    // Sauter la condition (...)
+                    if (tokens[current_token].type == TOKEN_LPAREN) {
+                        int paren_depth = 1;
+                        current_token++;
+                        while (current_token < token_count && paren_depth > 0) {
+                            if (tokens[current_token].type == TOKEN_LPAREN) paren_depth++;
+                            if (tokens[current_token].type == TOKEN_RPAREN) paren_depth--;
+                            current_token++;
+                        }
+                    }
+                    
+                    // Sauter le bloc then
+                    if (tokens[current_token].type == TOKEN_LBRACE) {
+                        int brace = 1;
+                        current_token++;
+                        while (current_token < token_count && brace > 0) {
+                            if (tokens[current_token].type == TOKEN_LBRACE) brace++;
+                            if (tokens[current_token].type == TOKEN_RBRACE) brace--;
+                            current_token++;
+                        }
+                    } else {
+                        while (current_token < token_count && tokens[current_token].type != TOKEN_SEMICOLON) {
+                            current_token++;
+                        }
+                        if (tokens[current_token].type == TOKEN_SEMICOLON) {
+                            current_token++;
+                        }
+                    }
+                    
+                    // Sauter récursivement les else if et else suivants
+                    while (tokens[current_token].type == TOKEN_ELSE) {
+                        current_token++; // Sauter TOKEN_ELSE
+                        
+                        if (tokens[current_token].type == TOKEN_IF) {
+                            // Autre else if, continuer à sauter
+                            current_token++;
+                            
+                            // Sauter condition
+                            if (tokens[current_token].type == TOKEN_LPAREN) {
+                                int paren = 1;
+                                current_token++;
+                                while (current_token < token_count && paren > 0) {
+                                    if (tokens[current_token].type == TOKEN_LPAREN) paren++;
+                                    if (tokens[current_token].type == TOKEN_RPAREN) paren--;
+                                    current_token++;
+                                }
+                            }
+                            
+                            // Sauter bloc
+                            if (tokens[current_token].type == TOKEN_LBRACE) {
+                                int brace = 1;
+                                current_token++;
+                                while (current_token < token_count && brace > 0) {
+                                    if (tokens[current_token].type == TOKEN_LBRACE) brace++;
+                                    if (tokens[current_token].type == TOKEN_RBRACE) brace--;
+                                    current_token++;
+                                }
+                            } else {
+                                while (current_token < token_count && tokens[current_token].type != TOKEN_SEMICOLON) {
+                                    current_token++;
+                                }
+                                if (tokens[current_token].type == TOKEN_SEMICOLON) {
+                                    current_token++;
+                                }
+                            }
+                        } else {
+                            // else final, sauter et terminer
+                            if (tokens[current_token].type == TOKEN_LBRACE) {
+                                int brace = 1;
+                                current_token++;
+                                while (current_token < token_count && brace > 0) {
+                                    if (tokens[current_token].type == TOKEN_LBRACE) brace++;
+                                    if (tokens[current_token].type == TOKEN_RBRACE) brace--;
+                                    current_token++;
+                                }
+                            } else {
+                                while (current_token < token_count && tokens[current_token].type != TOKEN_SEMICOLON) {
+                                    current_token++;
+                                }
+                                if (tokens[current_token].type == TOKEN_SEMICOLON) {
+                                    current_token++;
+                                }
+                            }
+                            break; // Fin du else final
+                        }
+                    }
+                } else if (tokens[current_token].type == TOKEN_LBRACE) {
+                    // else avec bloc
                     int brace = 1;
                     current_token++;
                     while (current_token < token_count && brace > 0) {
@@ -738,6 +833,7 @@ void parse_statement() {
                         current_token++;
                     }
                 } else {
+                    // else sans bloc
                     while (current_token < token_count && tokens[current_token].type != TOKEN_SEMICOLON) {
                         current_token++;
                     }
@@ -751,7 +847,12 @@ void parse_statement() {
             
             if (else_pos != -1 && tokens[else_pos - 1].type == TOKEN_ELSE) {
                 current_token = else_pos;
-                if (tokens[current_token].type == TOKEN_LBRACE) {
+                
+                // Vérifier si c'est un "else if" ou juste "else"
+                if (tokens[current_token].type == TOKEN_IF) {
+                    // C'est un "else if", traiter comme un nouveau if
+                    parse_statement();
+                } else if (tokens[current_token].type == TOKEN_LBRACE) {
                     parse_block();
                 } else {
                     parse_statement();

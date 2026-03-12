@@ -1,29 +1,54 @@
-# 🚀 MiniLang v3.3.2 - VRAIES CORRECTIONS
+# 🚀 MiniLang v3.3.3 - BUG CRITIQUE CORRIGÉ
 
-**3 bugs critiques RÉELLEMENT corrigés et validés** ✅
+**Bug if/else if CORRIGÉ et VALIDÉ** ✅
 
 ---
 
-## ✅ Corrections Validées
+## 🐛 Bug Critique Corrigé
 
-### Bug #1 - Variable inutilisée ✅ CORRIGÉ
-**Status** : 0 warnings de compilation
-
-### Bug #3/#11 - Concaténation universelle ✅ CORRIGÉ
+### Problème (v3.3.0 - v3.3.2)
 ```c
-bool actif = true;
-str msg = "Actif: " + actif;  // ✅ "Actif: true"
-
-int age = 25;
-str info = "Age: " + age;      // ✅ "Age: 25"
+if (score >= 15) {
+    print("Excellent");      // ✅ S'exécute
+} else if (score >= 10) {
+    print("Pas mal");
+} else {
+    print("Reessayez");      // ❌ S'exécute AUSSI !
+}
 ```
 
-### Bug #9 - Opérateurs composés tableaux ✅ CORRIGÉ
+**Résultat** : Affichait "Excellent" ET "Reessayez" ❌
+
+### Solution (v3.3.3)
 ```c
-int tab[5];
-tab[0] = 10;
-tab[0] += 5;   // ✅ tab[0] = 15
-tab[0] *= 2;   // ✅ tab[0] = 30
+if (score >= 15) {
+    print("Excellent");      // ✅ S'exécute
+} else if (score >= 10) {
+    print("Pas mal");
+} else {
+    print("Reessayez");      // ✅ Ne s'exécute PAS
+}
+```
+
+**Résultat** : Affiche SEULEMENT "Excellent" ✅
+
+---
+
+## ✅ Tests de Validation
+
+### Test 1 : score = 20
+```
+Excellent               ✅ CORRECT
+```
+
+### Test 2 : score = 12
+```
+Pas mal                 ✅ CORRECT
+```
+
+### Test 3 : score = 5
+```
+Reessayez               ✅ CORRECT
 ```
 
 ---
@@ -32,9 +57,9 @@ tab[0] *= 2;   // ✅ tab[0] = 30
 
 ```bash
 make
-./minilang --version
+./minilang tests/demo_v3.3.0.ml
 ```
 
 ---
 
-**MiniLang v3.3.2 - Corrections testées et validées** ✅
+**MiniLang v3.3.3 - if/else if fonctionne correctement !** 🎉
