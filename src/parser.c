@@ -406,41 +406,39 @@ void parse_statement() {
                 current_token++;
                 Variable *var = find_variable(var_name);
                 
-                if (tokens[current_token].type == TOKEN_STRING) {
-                    if (type == VAR_STRING) {
-                        var->value.str_val = strdup(tokens[current_token].value);
+                // Toujours évaluer avec evaluate_logical pour supporter concaténation
+                ExprResult result = evaluate_logical();
+                
+                if (type == VAR_INT) {
+                    if (result.type == VAR_FLOAT) {
+                        var->value.int_val = (int)result.value.float_val;
+                    } else if (result.type == VAR_STRING) {
+                        var->value.int_val = atoi(result.value.str_val);
+                    } else {
+                        var->value.int_val = result.value.int_val;
                     }
-                    current_token++;
-                } else {
-                    ExprResult result = evaluate_logical();
-                    
-                    if (type == VAR_INT) {
-                        if (result.type == VAR_FLOAT) {
-                            var->value.int_val = (int)result.value.float_val;
-                        } else if (result.type == VAR_STRING) {
-                            var->value.int_val = atoi(result.value.str_val);
-                        } else {
-                            var->value.int_val = result.value.int_val;
-                        }
-                    } else if (type == VAR_FLOAT) {
-                        if (result.type == VAR_INT) {
-                            var->value.float_val = (float)result.value.int_val;
-                        } else if (result.type == VAR_STRING) {
-                            var->value.float_val = atof(result.value.str_val);
-                        } else {
-                            var->value.float_val = result.value.float_val;
-                        }
-                    } else if (type == VAR_BOOL) {
-                        if (result.type == VAR_STRING) {
-                            var->value.int_val = (strcmp(result.value.str_val, "true") == 0 || 
-                                                 strcmp(result.value.str_val, "1") == 0) ? 1 : 0;
-                        } else {
-                            var->value.int_val = is_true(result) ? 1 : 0;
-                        }
-                    } else if (type == VAR_STRING) {
-                        if (result.type == VAR_STRING) {
-                            var->value.str_val = strdup(result.value.str_val);
-                        }
+                } else if (type == VAR_FLOAT) {
+                    if (result.type == VAR_INT) {
+                        var->value.float_val = (float)result.value.int_val;
+                    } else if (result.type == VAR_STRING) {
+                        var->value.float_val = atof(result.value.str_val);
+                    } else {
+                        var->value.float_val = result.value.float_val;
+                    }
+                } else if (type == VAR_BOOL) {
+                    if (result.type == VAR_STRING) {
+                        var->value.int_val = (strcmp(result.value.str_val, "true") == 0 || 
+                                             strcmp(result.value.str_val, "1") == 0) ? 1 : 0;
+                    } else {
+                        var->value.int_val = is_true(result) ? 1 : 0;
+                    }
+                } else if (type == VAR_STRING) {
+                    if (result.type == VAR_STRING) {
+                        var->value.str_val = strdup(result.value.str_val);
+                    } else {
+                        // Convertir autres types en string
+                        char *str_val = value_to_string(result);
+                        var->value.str_val = str_val;
                     }
                 }
             }
@@ -473,7 +471,13 @@ void parse_statement() {
                 current_token++;
             }
             
-            if (tokens[current_token].type == TOKEN_ASSIGN) {
+            if (tokens[current_token].type == TOKEN_ASSIGN ||
+                tokens[current_token].type == TOKEN_PLUS_ASSIGN ||
+                tokens[current_token].type == TOKEN_MINUS_ASSIGN ||
+                tokens[current_token].type == TOKEN_MULT_ASSIGN ||
+                tokens[current_token].type == TOKEN_DIV_ASSIGN) {
+                
+                TokenType assign_op = tokens[current_token].type;
                 current_token++;
                 ExprResult value = evaluate_logical();
                 
@@ -482,10 +486,39 @@ void parse_statement() {
                     int idx = index.value.int_val;
                     if (idx >= 0 && idx < var->value.array_val.size) {
                         if (var->value.array_val.elem_type == VAR_INT) {
-                            var->value.array_val.int_array[idx] = value.value.int_val;
+                            int result_val = (value.type == VAR_FLOAT) ? 
+                                (int)value.value.float_val : value.value.int_val;
+                            
+                            if (assign_op == TOKEN_ASSIGN) {
+                                var->value.array_val.int_array[idx] = result_val;
+                            } else if (assign_op == TOKEN_PLUS_ASSIGN) {
+                                var->value.array_val.int_array[idx] += result_val;
+                            } else if (assign_op == TOKEN_MINUS_ASSIGN) {
+                                var->value.array_val.int_array[idx] -= result_val;
+                            } else if (assign_op == TOKEN_MULT_ASSIGN) {
+                                var->value.array_val.int_array[idx] *= result_val;
+                            } else if (assign_op == TOKEN_DIV_ASSIGN) {
+                                if (result_val != 0) {
+                                    var->value.array_val.int_array[idx] /= result_val;
+                                }
+                            }
                         } else if (var->value.array_val.elem_type == VAR_FLOAT) {
-                            var->value.array_val.float_array[idx] = 
-                                (value.type == VAR_INT) ? (float)value.value.int_val : value.value.float_val;
+                            float result_val = (value.type == VAR_INT) ? 
+                                (float)value.value.int_val : value.value.float_val;
+                            
+                            if (assign_op == TOKEN_ASSIGN) {
+                                var->value.array_val.float_array[idx] = result_val;
+                            } else if (assign_op == TOKEN_PLUS_ASSIGN) {
+                                var->value.array_val.float_array[idx] += result_val;
+                            } else if (assign_op == TOKEN_MINUS_ASSIGN) {
+                                var->value.array_val.float_array[idx] -= result_val;
+                            } else if (assign_op == TOKEN_MULT_ASSIGN) {
+                                var->value.array_val.float_array[idx] *= result_val;
+                            } else if (assign_op == TOKEN_DIV_ASSIGN) {
+                                if (result_val != 0.0) {
+                                    var->value.array_val.float_array[idx] /= result_val;
+                                }
+                            }
                         }
                     }
                 }
@@ -809,7 +842,6 @@ void parse_statement() {
         
         int condition_start = current_token;
         ExprResult condition = evaluate_logical();
-        int condition_end = current_token;
         
         if (tokens[current_token].type != TOKEN_SEMICOLON) {
             print_error("';' attendu", token.line);
