@@ -484,6 +484,17 @@ void parse_statement() {
                 Variable *var = find_variable(name);
                 if (var != NULL && var->type == VAR_ARRAY) {
                     int idx = index.value.int_val;
+                    
+                    // Validation stricte des bornes
+                    if (idx < 0 || idx >= var->value.array_val.size) {
+                        char error_msg[256];
+                        snprintf(error_msg, sizeof(error_msg), 
+                                "Index tableau hors limites: %d (taille: %d)", 
+                                idx, var->value.array_val.size);
+                        print_error(error_msg, token.line);
+                        return;
+                    }
+                    
                     if (idx >= 0 && idx < var->value.array_val.size) {
                         if (var->value.array_val.elem_type == VAR_INT) {
                             int result_val = (value.type == VAR_FLOAT) ? 
@@ -534,6 +545,13 @@ void parse_statement() {
             TokenType assign_op = tokens[current_token].type;
             current_token++;
             Variable *var = find_variable(name);
+            
+            if (var == NULL) {
+                char error_msg[256];
+                snprintf(error_msg, sizeof(error_msg), "Variable '%s' non declaree", name);
+                print_error(error_msg, token.line);
+                return;
+            }
             
             if (var != NULL) {
                 // Gestion de input() (seulement pour =)
@@ -734,7 +752,6 @@ void parse_statement() {
                 // Si c'est un "else if", sauter tout le if qui suit
                 if (tokens[current_token].type == TOKEN_IF) {
                     // Sauter récursivement tout le bloc if/else if/else
-                    int if_depth = 1;
                     current_token++; // Sauter TOKEN_IF
                     
                     // Sauter la condition (...)

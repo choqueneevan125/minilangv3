@@ -5,6 +5,32 @@
 // ============================================================================
 
 void add_variable(const char *name, VarType type) {
+    // Vérifier redéclaration dans le scope courant uniquement
+    if (current_scope != NULL) {
+        Variable *existing = current_scope->vars;
+        while (existing != NULL) {
+            if (strcmp(existing->name, name) == 0) {
+                char error_msg[256];
+                snprintf(error_msg, sizeof(error_msg), "Variable '%s' deja declaree", name);
+                print_error(error_msg, 0);
+                return;
+            }
+            existing = existing->next;
+        }
+    } else {
+        // Vérifier dans les variables globales
+        Variable *existing = variables;
+        while (existing != NULL) {
+            if (strcmp(existing->name, name) == 0) {
+                char error_msg[256];
+                snprintf(error_msg, sizeof(error_msg), "Variable '%s' deja declaree", name);
+                print_error(error_msg, 0);
+                return;
+            }
+            existing = existing->next;
+        }
+    }
+    
     Variable *var = malloc(sizeof(Variable));
     var->name = strdup(name);
     var->type = type;

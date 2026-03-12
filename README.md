@@ -1,65 +1,41 @@
-# 🚀 MiniLang v3.3.3 - BUG CRITIQUE CORRIGÉ
+# 🚀 MiniLang v3.3.4 - 4 BUGS CRITIQUES CORRIGÉS
 
-**Bug if/else if CORRIGÉ et VALIDÉ** ✅
+**Validation stricte + 0 warnings** ✅
 
 ---
 
-## 🐛 Bug Critique Corrigé
+## ✅ Corrections Validées
 
-### Problème (v3.3.0 - v3.3.2)
+### 1. Variable inutilisée ✅
+**0 warnings de compilation**
+
+### 2. Variable non déclarée ✅
 ```c
-if (score >= 15) {
-    print("Excellent");      // ✅ S'exécute
-} else if (score >= 10) {
-    print("Pas mal");
-} else {
-    print("Reessayez");      // ❌ S'exécute AUSSI !
-}
+x = 10;  // ❌ Erreur: Variable 'x' non declaree
 ```
 
-**Résultat** : Affichait "Excellent" ET "Reessayez" ❌
-
-### Solution (v3.3.3)
+### 3. Redéclaration ✅
 ```c
-if (score >= 15) {
-    print("Excellent");      // ✅ S'exécute
-} else if (score >= 10) {
-    print("Pas mal");
-} else {
-    print("Reessayez");      // ✅ Ne s'exécute PAS
-}
+int y = 10;
+int y = 20;  // ❌ Erreur: Variable 'y' deja declaree
 ```
 
-**Résultat** : Affiche SEULEMENT "Excellent" ✅
-
----
-
-## ✅ Tests de Validation
-
-### Test 1 : score = 20
-```
-Excellent               ✅ CORRECT
-```
-
-### Test 2 : score = 12
-```
-Pas mal                 ✅ CORRECT
-```
-
-### Test 3 : score = 5
-```
-Reessayez               ✅ CORRECT
+### 4. Bornes tableaux ✅
+```c
+int tab[3];
+tab[-1] = 10;   // ❌ Erreur: Index hors limites: -1
+tab[10] = 20;   // ❌ Erreur: Index hors limites: 10
 ```
 
 ---
 
-## 📦 Installation
+## 📊 Total
 
-```bash
-make
-./minilang tests/demo_v3.3.0.ml
-```
+- ✅ 0 warnings compilation
+- ✅ 4 bugs critiques corrigés
+- ✅ Validation stricte activée
+- ✅ Messages d'erreur clairs
 
 ---
 
-**MiniLang v3.3.3 - if/else if fonctionne correctement !** 🎉
+**MiniLang v3.3.4 - Code sûr et robuste** 🏆

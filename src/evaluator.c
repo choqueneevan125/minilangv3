@@ -142,7 +142,20 @@ ExprResult parse_factor() {
                 }
                 
                 int idx = index.value.int_val;
-                if (var->type == VAR_ARRAY && idx >= 0 && idx < var->value.array_val.size) {
+                
+                // Validation stricte des bornes
+                if (var->type == VAR_ARRAY) {
+                    if (idx < 0 || idx >= var->value.array_val.size) {
+                        char error_msg[256];
+                        snprintf(error_msg, sizeof(error_msg), 
+                                "Index tableau hors limites: %d (taille: %d)", 
+                                idx, var->value.array_val.size);
+                        print_error(error_msg, tokens[current_token].line);
+                        result.type = VAR_INT;
+                        result.value.int_val = 0;
+                        return result;
+                    }
+                    
                     result.type = var->value.array_val.elem_type;
                     if (var->value.array_val.elem_type == VAR_INT) {
                         result.value.int_val = var->value.array_val.int_array[idx];
