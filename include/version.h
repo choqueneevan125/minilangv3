@@ -6,7 +6,7 @@
 #define MINILANG_VERSION_MINOR 3
 #define MINILANG_VERSION_PATCH 0
 
-#define MINILANG_VERSION "3.3.0"
+#define MINILANG_VERSION "3.3.1"
 
 // Date et heure de compilation
 #define MINILANG_BUILD_DATE __DATE__
@@ -28,7 +28,7 @@
 // Historique des versions
 #define MINILANG_CHANGELOG \
     "Historique:\n" \
-    "  v3.3.0 - Opérateurs composés (+=, -=, *=, /=), comparaison chaînes\n" \
+    "  v3.3.1 - Opérateurs composés (+=, -=, *=, /=), comparaison chaînes\n" \
     "  v3.2.3 - Structure organisée (src/, include/, tests/)\n" \
     "  v3.2.2 - CORRECTIF: Concaténation complète\n" \
     "  v3.2.1 - CORRECTIF: input() fonctionnel\n" \
