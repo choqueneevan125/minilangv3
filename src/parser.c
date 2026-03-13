@@ -511,6 +511,9 @@ void parse_statement() {
                             } else if (assign_op == TOKEN_DIV_ASSIGN) {
                                 if (result_val != 0) {
                                     var->value.array_val.int_array[idx] /= result_val;
+                                } else {
+                                    print_error("Division par zéro - Arrêt du programme", token.line);
+                                    exit(1);
                                 }
                             }
                         } else if (var->value.array_val.elem_type == VAR_FLOAT) {
@@ -528,6 +531,9 @@ void parse_statement() {
                             } else if (assign_op == TOKEN_DIV_ASSIGN) {
                                 if (result_val != 0.0) {
                                     var->value.array_val.float_array[idx] /= result_val;
+                                } else {
+                                    print_error("Division par zéro - Arrêt du programme", token.line);
+                                    exit(1);
                                 }
                             }
                         }
@@ -623,7 +629,12 @@ void parse_statement() {
                             } else if (assign_op == TOKEN_MULT_ASSIGN) {
                                 var->value.int_val = current_val * result_val;
                             } else if (assign_op == TOKEN_DIV_ASSIGN) {
-                                var->value.int_val = current_val / result_val;
+                                if (result_val != 0) {
+                                    var->value.int_val = current_val / result_val;
+                                } else {
+                                    print_error("Division par zéro - Arrêt du programme", token.line);
+                                    exit(1);
+                                }
                             }
                         } else if (var->type == VAR_FLOAT) {
                             float current_val = var->value.float_val;
@@ -637,7 +648,12 @@ void parse_statement() {
                             } else if (assign_op == TOKEN_MULT_ASSIGN) {
                                 var->value.float_val = current_val * result_val;
                             } else if (assign_op == TOKEN_DIV_ASSIGN) {
-                                var->value.float_val = current_val / result_val;
+                                if (result_val != 0.0) {
+                                    var->value.float_val = current_val / result_val;
+                                } else {
+                                    print_error("Division par zéro - Arrêt du programme", token.line);
+                                    exit(1);
+                                }
                             }
                         }
                     }

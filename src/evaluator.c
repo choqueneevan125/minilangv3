@@ -208,7 +208,8 @@ ExprResult parse_term() {
                     if (right_val != 0) {
                         left.value.float_val = left_val / right_val;
                     } else {
-                        print_error("Division par zéro", tokens[current_token-1].line);
+                        print_error("Division par zéro - Arrêt du programme", tokens[current_token-1].line);
+                        exit(1);
                     }
                 }
             } else {
@@ -218,13 +219,15 @@ ExprResult parse_term() {
                     if (right.value.int_val != 0) {
                         left.value.int_val = left.value.int_val / right.value.int_val;
                     } else {
-                        print_error("Division par zéro", tokens[current_token-1].line);
+                        print_error("Division par zéro - Arrêt du programme", tokens[current_token-1].line);
+                        exit(1);
                     }
                 } else if (op == TOKEN_MOD) {
                     if (right.value.int_val != 0) {
                         left.value.int_val = left.value.int_val % right.value.int_val;
                     } else {
-                        print_error("Modulo par zéro", tokens[current_token-1].line);
+                        print_error("Modulo par zéro - Arrêt du programme", tokens[current_token-1].line);
+                        exit(1);
                     }
                 }
             }

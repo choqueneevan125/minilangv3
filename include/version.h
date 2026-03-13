@@ -4,9 +4,9 @@
 // Version de MiniLang
 #define MINILANG_VERSION_MAJOR 3
 #define MINILANG_VERSION_MINOR 3
-#define MINILANG_VERSION_PATCH 4
+#define MINILANG_VERSION_PATCH 5
 
-#define MINILANG_VERSION "3.3.4"
+#define MINILANG_VERSION "3.3.5"
 
 // Date et heure de compilation
 #define MINILANG_BUILD_DATE __DATE__
@@ -28,8 +28,9 @@
 // Historique des versions
 #define MINILANG_CHANGELOG \
     "Historique:\n" \
-    "  v3.3.4 - CORRECTIFS: 4 bugs critiques (variables, tableaux, warnings)\n" \
-    "  v3.3.3 - if/else if bug corrigé\n" \
+    "  v3.3.5 - VERSION FINALE: Division/Modulo par zéro arrêtent le programme\n" \
+    "  v3.3.4 - 4 bugs critiques (variables, tableaux)\n" \
+    "  v3.3.3 - if/else if\n" \
     "  v3.3.2 - 3 bugs critiques\n" \
     "  v3.3.1 - Documentation\n" \
     "  v3.3.0 - Opérateurs composés\n" \
