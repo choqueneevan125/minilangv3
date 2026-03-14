@@ -17,7 +17,7 @@ typedef enum {
     TOKEN_INT, TOKEN_FLOAT, TOKEN_STR, TOKEN_VOID, TOKEN_BOOL,
     TOKEN_IDENTIFIER, TOKEN_NUMBER, TOKEN_STRING,
     TOKEN_ASSIGN, TOKEN_PRINT, TOKEN_INPUT, TOKEN_LPAREN, TOKEN_RPAREN,
-    TOKEN_SEMICOLON, TOKEN_EOF, TOKEN_COMMA,
+    TOKEN_SEMICOLON, TOKEN_EOF, TOKEN_COMMA, TOKEN_DOT,
     TOKEN_PLUS, TOKEN_MINUS, TOKEN_MULT, TOKEN_DIV, TOKEN_MOD,
     TOKEN_PLUS_ASSIGN, TOKEN_MINUS_ASSIGN, TOKEN_MULT_ASSIGN, TOKEN_DIV_ASSIGN,
     TOKEN_EQ, TOKEN_NEQ, TOKEN_LT, TOKEN_GT, TOKEN_LTE, TOKEN_GTE,
@@ -47,6 +47,7 @@ typedef struct {
     VarType elem_type;
     int *int_array;
     float *float_array;
+    char **str_array;  // Nouveau : tableaux de chaînes
 } Array;
 
 // Structure d'une variable
@@ -76,6 +77,7 @@ typedef struct {
 typedef struct Param {
     char *name;
     VarType type;
+    int is_array;  // Nouveau : indique si c'est un tableau
     struct Param *next;
 } Param;
 

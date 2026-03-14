@@ -161,6 +161,12 @@ ExprResult parse_factor() {
                         result.value.int_val = var->value.array_val.int_array[idx];
                     } else if (var->value.array_val.elem_type == VAR_FLOAT) {
                         result.value.float_val = var->value.array_val.float_array[idx];
+                    } else if (var->value.array_val.elem_type == VAR_STRING) {
+                        if (var->value.array_val.str_array[idx] != NULL) {
+                            result.value.str_val = var->value.array_val.str_array[idx];
+                        } else {
+                            result.value.str_val = "";
+                        }
                     }
                 }
                 return result;
@@ -174,6 +180,66 @@ ExprResult parse_factor() {
                 result.value.float_val = var->value.float_val;
             } else if (var->type == VAR_STRING) {
                 result.value.str_val = var->value.str_val;
+                
+                // Vérifier si on accède à .length ou .substring
+                if (tokens[current_token].type == TOKEN_DOT) {
+                    current_token++;
+                    
+                    if (tokens[current_token].type == TOKEN_IDENTIFIER) {
+                        char *method = tokens[current_token].value;
+                        current_token++;
+                        
+                        if (strcmp(method, "length") == 0) {
+                            // Retourner la longueur de la chaîne
+                            result.type = VAR_INT;
+                            result.value.int_val = strlen(var->value.str_val ? var->value.str_val : "");
+                        } else if (strcmp(method, "substring") == 0) {
+                            // substring(start, end)
+                            if (tokens[current_token].type != TOKEN_LPAREN) {
+                                print_error("'(' attendu après substring", tokens[current_token].line);
+                                return result;
+                            }
+                            current_token++;
+                            
+                            ExprResult start = evaluate_expression();
+                            
+                            if (tokens[current_token].type != TOKEN_COMMA) {
+                                print_error("',' attendu dans substring", tokens[current_token].line);
+                                return result;
+                            }
+                            current_token++;
+                            
+                            ExprResult end = evaluate_expression();
+                            
+                            if (tokens[current_token].type != TOKEN_RPAREN) {
+                                print_error("')' attendu", tokens[current_token].line);
+                                return result;
+                            }
+                            current_token++;
+                            
+                            // Extraire la sous-chaîne
+                            int start_idx = start.value.int_val;
+                            int end_idx = end.value.int_val;
+                            const char *str = var->value.str_val ? var->value.str_val : "";
+                            int len = strlen(str);
+                            
+                            // Validation
+                            if (start_idx < 0) start_idx = 0;
+                            if (end_idx > len) end_idx = len;
+                            if (start_idx >= end_idx) {
+                                result.type = VAR_STRING;
+                                result.value.str_val = strdup("");
+                            } else {
+                                int substr_len = end_idx - start_idx;
+                                char *substr = malloc(substr_len + 1);
+                                strncpy(substr, str + start_idx, substr_len);
+                                substr[substr_len] = '\0';
+                                result.type = VAR_STRING;
+                                result.value.str_val = substr;
+                            }
+                        }
+                    }
+                }
             } else if (var->type == VAR_BOOL) {
                 result.value.int_val = var->value.int_val;
             }

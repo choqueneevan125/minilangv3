@@ -88,28 +88,58 @@ ExprResult call_function(const char *func_name) {
     int arg_count = 0;
     
     while (tokens[current_token].type != TOKEN_RPAREN && param != NULL) {
-        ExprResult arg_value = evaluate_logical();
-        
-        // Créer la variable du paramètre dans le scope de la fonction
-        add_variable(param->name, param->type);
-        Variable *var = find_variable(param->name);
-        
-        if (var != NULL) {
-            if (param->type == VAR_INT) {
-                var->value.int_val = (arg_value.type == VAR_FLOAT) ? 
-                    (int)arg_value.value.float_val : arg_value.value.int_val;
-            } else if (param->type == VAR_FLOAT) {
-                var->value.float_val = (arg_value.type == VAR_INT) ? 
-                    (float)arg_value.value.int_val : arg_value.value.float_val;
-            } else if (param->type == VAR_STRING) {
-                // CORRECTION: Copier la chaîne pour les paramètres string
-                if (arg_value.type == VAR_STRING && arg_value.value.str_val != NULL) {
-                    var->value.str_val = strdup(arg_value.value.str_val);
-                } else {
-                    var->value.str_val = NULL;
+        // Si le paramètre est un tableau, on doit passer le nom de la variable
+        if (param->is_array) {
+            // Pour un tableau, on attend un nom de variable (tableau)
+            if (tokens[current_token].type != TOKEN_IDENTIFIER) {
+                print_error("Nom de tableau attendu comme argument", tokens[current_token].line);
+                break;
+            }
+            
+            char *array_name = tokens[current_token].value;
+            Variable *array_var = find_variable(array_name);
+            current_token++;
+            
+            if (array_var == NULL || array_var->type != VAR_ARRAY) {
+                print_error("Tableau attendu comme argument", tokens[current_token-1].line);
+                break;
+            }
+            
+            // Créer une variable tableau dans le scope de la fonction
+            // qui pointe vers le même tableau (passage par référence)
+            Variable *param_var = malloc(sizeof(Variable));
+            param_var->name = strdup(param->name);
+            param_var->type = VAR_ARRAY;
+            param_var->value.array_val = array_var->value.array_val;  // Référence !
+            
+            if (current_scope != NULL) {
+                param_var->next = current_scope->vars;
+                current_scope->vars = param_var;
+            }
+        } else {
+            // Comportement normal pour les types simples
+            ExprResult arg_value = evaluate_logical();
+            
+            // Créer la variable du paramètre dans le scope de la fonction
+            add_variable(param->name, param->type);
+            Variable *var = find_variable(param->name);
+            
+            if (var != NULL) {
+                if (param->type == VAR_INT) {
+                    var->value.int_val = (arg_value.type == VAR_FLOAT) ? 
+                        (int)arg_value.value.float_val : arg_value.value.int_val;
+                } else if (param->type == VAR_FLOAT) {
+                    var->value.float_val = (arg_value.type == VAR_INT) ? 
+                        (float)arg_value.value.int_val : arg_value.value.float_val;
+                } else if (param->type == VAR_STRING) {
+                    if (arg_value.type == VAR_STRING && arg_value.value.str_val != NULL) {
+                        var->value.str_val = strdup(arg_value.value.str_val);
+                    } else {
+                        var->value.str_val = NULL;
+                    }
+                } else if (param->type == VAR_BOOL) {
+                    var->value.int_val = is_true(arg_value) ? 1 : 0;
                 }
-            } else if (param->type == VAR_BOOL) {
-                var->value.int_val = is_true(arg_value) ? 1 : 0;
             }
         }
         
@@ -237,7 +267,21 @@ void parse_function_declaration() {
         Param *param = malloc(sizeof(Param));
         param->name = strdup(tokens[current_token].value);
         param->type = param_type;
+        param->is_array = 0;  // Par défaut, pas un tableau
         param->next = NULL;
+        
+        current_token++;
+        
+        // Vérifier si c'est un tableau : []
+        if (tokens[current_token].type == TOKEN_LBRACKET) {
+            current_token++;
+            if (tokens[current_token].type == TOKEN_RBRACKET) {
+                current_token++;
+                param->is_array = 1;  // C'est un tableau
+            } else {
+                print_error("']' attendu pour tableau en paramètre", tokens[current_token].line);
+            }
+        }
         
         if (last_param == NULL) {
             func->params = param;
@@ -246,8 +290,6 @@ void parse_function_declaration() {
         }
         last_param = param;
         func->param_count++;
-        
-        current_token++;
         
         if (tokens[current_token].type == TOKEN_COMMA) {
             current_token++;
@@ -395,6 +437,12 @@ void parse_statement() {
                 var->value.array_val.int_array = calloc(size.value.int_val, sizeof(int));
             } else if (type == VAR_FLOAT) {
                 var->value.array_val.float_array = calloc(size.value.int_val, sizeof(float));
+            } else if (type == VAR_STRING) {
+                var->value.array_val.str_array = calloc(size.value.int_val, sizeof(char*));
+                // Initialiser toutes les chaînes à NULL
+                for (int i = 0; i < size.value.int_val; i++) {
+                    var->value.array_val.str_array[i] = NULL;
+                }
             }
             
             var->next = current_scope->vars;
@@ -536,6 +584,24 @@ void parse_statement() {
                                     exit(1);
                                 }
                             }
+                        } else if (var->value.array_val.elem_type == VAR_STRING) {
+                            // Assignation pour tableaux de chaînes
+                            if (assign_op == TOKEN_ASSIGN) {
+                                // Libérer l'ancienne chaîne si elle existe
+                                if (var->value.array_val.str_array[idx] != NULL) {
+                                    free(var->value.array_val.str_array[idx]);
+                                }
+                                
+                                // Assigner la nouvelle chaîne
+                                if (value.type == VAR_STRING) {
+                                    var->value.array_val.str_array[idx] = strdup(value.value.str_val);
+                                } else {
+                                    // Convertir autre type en string
+                                    char *str_val = value_to_string(value);
+                                    var->value.array_val.str_array[idx] = str_val;
+                                }
+                            }
+                            // Les opérateurs composés ne sont pas supportés pour les chaînes
                         }
                     }
                 }

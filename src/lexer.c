@@ -179,6 +179,7 @@ void lexer(const char *source) {
             case ']': tokens[token_count++] = create_token(TOKEN_RBRACKET, "]", line); break;
             case ';': tokens[token_count++] = create_token(TOKEN_SEMICOLON, ";", line); break;
             case ',': tokens[token_count++] = create_token(TOKEN_COMMA, ",", line); break;
+            case '.': tokens[token_count++] = create_token(TOKEN_DOT, ".", line); break;
             case '+': tokens[token_count++] = create_token(TOKEN_PLUS, "+", line); break;
             case '-': tokens[token_count++] = create_token(TOKEN_MINUS, "-", line); break;
             case '*': tokens[token_count++] = create_token(TOKEN_MULT, "*", line); break;

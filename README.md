@@ -1,58 +1,108 @@
-# 🏆 MiniLang v3.3.5 - VERSION FINALE ULTRA-STABLE
+# 🚀 MiniLang v3.4.0 - NOUVELLES FONCTIONNALITÉS MAJEURES
 
-**Tous les bugs critiques corrigés** ✅
-
----
-
-## 🎯 VERSION FINALE
-
-Cette version corrige TOUS les bugs critiques identifiés.
-**Code production-ready !**
+**3 Fonctionnalités Avancées** ✅
 
 ---
 
-## ✅ Corrections v3.3.5
+## ✨ NOUVEAUTÉS v3.4.0
 
-### Division/Modulo par Zéro → ARRÊT
+### 1️⃣ Tableaux de Chaînes (str[])
 
-**Avant** : Affichait erreur mais continuait
 ```c
-int x = 10 / 0;
-print("Suite");  // S'exécutait quand même
+str noms[3];
+noms[0] = "Alice";
+noms[1] = "Bob";
+noms[2] = "Charlie";
+
+for (int i = 0; i < 3; i += 1) {
+    print(noms[i]);
+}
 ```
 
-**Après** : Arrêt immédiat
+### 2️⃣ Opérations sur Chaînes
+
+**`.length` - Longueur d'une chaîne**
 ```c
-int x = 10 / 0;  // Arrêt du programme
-print("Suite");  // Ne s'exécute JAMAIS
+str texte = "Bonjour";
+int longueur = texte.length;  // 7
+print(longueur);
+```
+
+**`.substring(start, end)` - Extraction**
+```c
+str message = "Hello World";
+str debut = message.substring(0, 5);   // "Hello"
+str fin = message.substring(6, 11);    // "World"
+```
+
+### 3️⃣ Tableaux en Paramètres de Fonction
+
+**Passage par référence !**
+
+```c
+// Fonction qui modifie le tableau (passage par référence)
+func void doubler(int tab[], int taille) {
+    for (int i = 0; i < taille; i += 1) {
+        tab[i] *= 2;
+    }
+}
+
+int nombres[3];
+nombres[0] = 10;
+nombres[1] = 20;
+nombres[2] = 30;
+
+doubler(nombres, 3);
+// nombres contient maintenant : [20, 40, 60]
+```
+
+**Fonctionne avec tous les types de tableaux :**
+- `int[]`
+- `float[]`
+- `str[]`
+
+---
+
+## 🎯 Exemple Complet
+
+```c
+// Fonction d'analyse de texte
+func void analyser(str textes[], int nb) {
+    for (int i = 0; i < nb; i += 1) {
+        str texte = textes[i];
+        print("Texte: " + texte);
+        print("Longueur: " + texte.length);
+        
+        if (texte.length >= 5) {
+            str extrait = texte.substring(0, 5);
+            print("Extrait: " + extrait);
+        }
+    }
+}
+
+str phrases[2];
+phrases[0] = "Hello World";
+phrases[1] = "Bonjour";
+
+analyser(phrases, 2);
 ```
 
 ---
 
-## 📊 Récapitulatif Total
+## 📊 Récapitulatif Complet
 
-### Bugs Corrigés
-
-| Version | Bugs Corrigés |
-|---------|---------------|
-| v3.3.2 | Concaténation, tableaux, warning |
-| v3.3.3 | if/else if |
-| v3.3.4 | Variables, bornes tableaux |
-| v3.3.5 | Division/modulo par zéro |
-
-**TOTAL : 10 bugs critiques corrigés !**
-
----
-
-## 🎯 Garanties v3.3.5
-
-✅ **0 warnings compilation**
-✅ **Variables validées strictement**
-✅ **Bornes tableaux vérifiées**
-✅ **Division par zéro arrête le programme**
-✅ **Modulo par zéro arrête le programme**
-✅ **Messages d'erreur clairs**
-✅ **Code sûr et robuste**
+| Fonctionnalité | Statut |
+|----------------|--------|
+| **Tableaux de chaînes (str[])** | ✅ NOUVEAU |
+| **Opérations sur chaînes** | ✅ NOUVEAU |
+| **Tableaux en paramètres** | ✅ NOUVEAU |
+| Types de base | ✅ |
+| Opérateurs composés | ✅ |
+| Comparaison chaînes | ✅ |
+| Validation stricte | ✅ |
+| if/else if/else | ✅ |
+| break/continue | ✅ |
+| Récursivité | ✅ |
 
 ---
 
@@ -60,9 +110,9 @@ print("Suite");  // Ne s'exécute JAMAIS
 
 ```bash
 make
-./minilang --version  # v3.3.5
+./minilang tests/demo_v3.4.0.ml
 ```
 
 ---
 
-**MiniLang v3.3.5 - Production Ready !** 🏆
+**MiniLang v3.4.0 - Plus Puissant que Jamais !** 🏆
