@@ -105,6 +105,19 @@ ExprResult call_function(const char *func_name) {
                 break;
             }
             
+            // Vérifier que le type d'éléments correspond
+            if (array_var->value.array_val.elem_type != param->type) {
+                char error_msg[256];
+                snprintf(error_msg, sizeof(error_msg), 
+                        "Type de tableau incompatible (attendu: %s, reçu: %s)",
+                        param->type == VAR_INT ? "int[]" : 
+                        param->type == VAR_FLOAT ? "float[]" : "str[]",
+                        array_var->value.array_val.elem_type == VAR_INT ? "int[]" :
+                        array_var->value.array_val.elem_type == VAR_FLOAT ? "float[]" : "str[]");
+                print_error(error_msg, tokens[current_token-1].line);
+                break;
+            }
+            
             // Créer une variable tableau dans le scope de la fonction
             // qui pointe vers le même tableau (passage par référence)
             Variable *param_var = malloc(sizeof(Variable));

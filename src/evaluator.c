@@ -167,6 +167,62 @@ ExprResult parse_factor() {
                         } else {
                             result.value.str_val = "";
                         }
+                        
+                        // Support .length et .substring sur str[]
+                        if (tokens[current_token].type == TOKEN_DOT) {
+                            current_token++;
+                            if (tokens[current_token].type == TOKEN_IDENTIFIER) {
+                                char *method = tokens[current_token].value;
+                                current_token++;
+                                
+                                if (strcmp(method, "length") == 0) {
+                                    result.type = VAR_INT;
+                                    result.value.int_val = strlen(result.value.str_val ? result.value.str_val : "");
+                                } else if (strcmp(method, "substring") == 0) {
+                                    if (tokens[current_token].type != TOKEN_LPAREN) {
+                                        print_error("'(' attendu après substring", tokens[current_token].line);
+                                        return result;
+                                    }
+                                    current_token++;
+                                    
+                                    ExprResult start = evaluate_expression();
+                                    
+                                    if (tokens[current_token].type != TOKEN_COMMA) {
+                                        print_error("',' attendu dans substring", tokens[current_token].line);
+                                        return result;
+                                    }
+                                    current_token++;
+                                    
+                                    ExprResult end = evaluate_expression();
+                                    
+                                    if (tokens[current_token].type != TOKEN_RPAREN) {
+                                        print_error("')' attendu", tokens[current_token].line);
+                                        return result;
+                                    }
+                                    current_token++;
+                                    
+                                    // Extraire la sous-chaîne
+                                    int start_idx = start.value.int_val;
+                                    int end_idx = end.value.int_val;
+                                    const char *str = result.value.str_val ? result.value.str_val : "";
+                                    int len = strlen(str);
+                                    
+                                    if (start_idx < 0) start_idx = 0;
+                                    if (end_idx > len) end_idx = len;
+                                    if (start_idx >= end_idx) {
+                                        result.type = VAR_STRING;
+                                        result.value.str_val = strdup("");
+                                    } else {
+                                        int substr_len = end_idx - start_idx;
+                                        char *substr = malloc(substr_len + 1);
+                                        strncpy(substr, str + start_idx, substr_len);
+                                        substr[substr_len] = '\0';
+                                        result.type = VAR_STRING;
+                                        result.value.str_val = substr;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 return result;
