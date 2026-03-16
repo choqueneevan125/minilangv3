@@ -1,0 +1,4 @@
+// Test redéclaration variable
+int x = 10;
+int x = 20;
+print(x);
