@@ -1,5 +1,0 @@
-// Test division par zéro
-int x = 10;
-int y = 0;
-int z = x / y;
-print(z);

@@ -136,3 +136,19 @@ count:
 	@wc -l $(INC_DIR)/*.h | grep -v total
 
 .PHONY: all test test-concat test-bool test-break test-functions clean clean-all install uninstall info debug count
+
+# ============================================================================
+# TESTS
+# ============================================================================
+
+.PHONY: test
+test: all
+	@echo ""
+	@echo "════════════════════════════════════════════════════════"
+	@echo "   Lancement de la suite de tests..."
+	@echo "════════════════════════════════════════════════════════"
+	@./run_tests.sh
+
+.PHONY: test-verbose
+test-verbose: all
+	@./run_tests.sh --verbose
