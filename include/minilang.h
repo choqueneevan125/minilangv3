@@ -66,10 +66,12 @@ typedef struct Variable {
 // Structure pour les résultats d'expressions
 typedef struct {
     VarType type;
+    int is_array;  // Indique si c'est un tableau
     union {
         int int_val;
         float float_val;
         char *str_val;
+        Array array_val;  // Pour retourner un tableau
     } value;
 } ExprResult;
 
@@ -85,6 +87,7 @@ typedef struct Param {
 typedef struct Function {
     char *name;
     VarType return_type;
+    int is_array_return;  // Nouveau : indique si retourne un tableau
     Param *params;
     int param_count;
     int body_start;

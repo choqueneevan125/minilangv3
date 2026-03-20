@@ -3,10 +3,10 @@
 
 // Version de MiniLang
 #define MINILANG_VERSION_MAJOR 3
-#define MINILANG_VERSION_MINOR 4
-#define MINILANG_VERSION_PATCH 2
+#define MINILANG_VERSION_MINOR 5
+#define MINILANG_VERSION_PATCH 0
 
-#define MINILANG_VERSION "3.4.2"
+#define MINILANG_VERSION "3.5.0"
 
 // Date et heure de compilation
 #define MINILANG_BUILD_DATE __DATE__
@@ -28,6 +28,7 @@
 // Historique des versions
 #define MINILANG_CHANGELOG \
     "Historique:\n" \
+    "  v3.5.0 - TABLEAUX EN RETOUR: func int[] creer() {}\n" \
     "  v3.4.2 - CORRECTIFS: 3 bugs (taille tableau, 2D, += chaîne)\n" \
     "  v3.4.1 - 2 bugs critiques (type tableau, .length str[])\n" \
     "  v3.4.0 - Tableaux en paramètres, str[], .length, .substring\n" \

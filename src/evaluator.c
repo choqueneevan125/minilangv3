@@ -18,6 +18,7 @@ ExprResult parse_factor() {
     ExprResult result;
     result.type = VAR_INT;
     result.value.int_val = 0;
+    result.is_array = 0;  // Initialiser à 0 par défaut
     
     Token token = tokens[current_token];
     
@@ -298,6 +299,11 @@ ExprResult parse_factor() {
                 }
             } else if (var->type == VAR_BOOL) {
                 result.value.int_val = var->value.int_val;
+            } else if (var->type == VAR_ARRAY) {
+                // Retourner le tableau entier (pour return ou affectation)
+                result.is_array = 1;
+                result.type = var->value.array_val.elem_type;
+                result.value.array_val = var->value.array_val;
             }
         }
         return result;

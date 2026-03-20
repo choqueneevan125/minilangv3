@@ -11,7 +11,7 @@ int token_count = 0;
 int current_token = 0;
 int current_line = 1;
 VarScope *current_scope = NULL;
-ReturnValue return_value = {false, {VAR_VOID, {0}}};
+ReturnValue return_value = {false, {VAR_VOID, 0, {0}}};
 ControlFlow control_flow = {false, false};
 
 // ============================================================================

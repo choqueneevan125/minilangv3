@@ -188,8 +188,14 @@ ExprResult call_function(const char *func_name) {
     if (return_value.has_return) {
         result = return_value.value;
         return_value.has_return = false;
+        
+        // Si la fonction doit retourner un tableau
+        if (func->is_array_return) {
+            result.is_array = 1;
+        }
     } else {
         result.type = func->return_type;
+        result.is_array = func->is_array_return;
     }
     
     // Restaurer la position
@@ -210,6 +216,8 @@ void parse_function_declaration() {
     
     // Type de retour
     VarType return_type = VAR_VOID;
+    int is_array_return = 0;
+    
     if (tokens[current_token].type == TOKEN_VOID) {
         return_type = VAR_VOID;
         current_token++;
@@ -227,6 +235,18 @@ void parse_function_declaration() {
         current_token++;
     }
     
+    // Vérifier si c'est un tableau en retour : type[]
+    if (tokens[current_token].type == TOKEN_LBRACKET) {
+        current_token++;
+        if (tokens[current_token].type == TOKEN_RBRACKET) {
+            current_token++;
+            is_array_return = 1;
+        } else {
+            print_error("']' attendu pour type de retour tableau", tokens[current_token].line);
+            return;
+        }
+    }
+    
     // Nom de la fonction
     if (tokens[current_token].type != TOKEN_IDENTIFIER) {
         print_error("Nom de fonction attendu", tokens[current_token].line);
@@ -240,6 +260,7 @@ void parse_function_declaration() {
     Function *func = malloc(sizeof(Function));
     func->name = func_name;
     func->return_type = return_type;
+    func->is_array_return = is_array_return;
     func->params = NULL;
     func->param_count = 0;
     
@@ -424,6 +445,19 @@ void parse_statement() {
                       (token.type == TOKEN_BOOL) ? VAR_BOOL : VAR_STRING;
         current_token++;
         
+        // Vérifier si c'est un tableau : type[]
+        int is_array_decl = 0;
+        if (tokens[current_token].type == TOKEN_LBRACKET) {
+            current_token++;
+            if (tokens[current_token].type == TOKEN_RBRACKET) {
+                current_token++;
+                is_array_decl = 1;
+            } else {
+                print_error("']' attendu pour type tableau", token.line);
+                return;
+            }
+        }
+        
         if (tokens[current_token].type != TOKEN_IDENTIFIER) {
             print_error("Nom de variable attendu", token.line);
             return;
@@ -432,7 +466,43 @@ void parse_statement() {
         char *var_name = tokens[current_token].value;
         current_token++;
         
-        // Déclaration de tableau
+        // Si c'était int[] nom (sans taille), on attend une affectation
+        if (is_array_decl) {
+            if (tokens[current_token].type != TOKEN_ASSIGN) {
+                print_error("= attendu pour affecter le tableau", token.line);
+                return;
+            }
+            current_token++;
+            
+            // Évaluer l'expression (devrait retourner un tableau)
+            ExprResult result = evaluate_logical();
+            
+            if (!result.is_array) {
+                print_error("Expression retournant un tableau attendue", token.line);
+                return;
+            }
+            
+            // Créer la variable tableau
+            Variable *var = malloc(sizeof(Variable));
+            var->name = strdup(var_name);
+            var->type = VAR_ARRAY;
+            var->value.array_val = result.value.array_val;
+            
+            if (current_scope != NULL) {
+                var->next = current_scope->vars;
+                current_scope->vars = var;
+            } else {
+                var->next = variables;
+                variables = var;
+            }
+            
+            if (tokens[current_token].type == TOKEN_SEMICOLON) {
+                current_token++;
+            }
+            return;
+        }
+        
+        // Déclaration de tableau avec taille : int nom[size]
         if (tokens[current_token].type == TOKEN_LBRACKET) {
             current_token++;
             ExprResult size = evaluate_expression();
@@ -517,6 +587,13 @@ void parse_statement() {
                         char *str_val = value_to_string(result);
                         var->value.str_val = str_val;
                     }
+                }
+                
+                // Si le résultat est un tableau (retourné par fonction)
+                if (result.is_array && var->type != VAR_ARRAY) {
+                    // Convertir la variable en tableau
+                    var->type = VAR_ARRAY;
+                    var->value.array_val = result.value.array_val;
                 }
             }
         }
