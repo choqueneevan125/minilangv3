@@ -178,11 +178,18 @@ ExprResult call_function(const char *func_name) {
     // Sauvegarder la position actuelle
     int saved_position = current_token;
     
+    // Sauvegarder et définir la fonction courante
+    Function *saved_function = current_function;
+    current_function = func;
+    
     // Exécuter le corps de la fonction
     current_token = func->body_start;
     return_value.has_return = false;
     
     parse_block();
+    
+    // Restaurer la fonction précédente
+    current_function = saved_function;
     
     // Récupérer la valeur de retour
     if (return_value.has_return) {
@@ -399,6 +406,51 @@ void parse_statement() {
         
         if (tokens[current_token].type != TOKEN_SEMICOLON) {
             return_value.value = evaluate_logical();
+            
+            // Vérifier la cohérence du type de retour
+            if (current_function != NULL) {
+                // Vérifier si la fonction attend un tableau
+                if (current_function->is_array_return) {
+                    if (!return_value.value.is_array) {
+                        char error_msg[256];
+                        const char *expected = (current_function->return_type == VAR_INT) ? "int[]" :
+                                              (current_function->return_type == VAR_FLOAT) ? "float[]" :
+                                              (current_function->return_type == VAR_STRING) ? "str[]" : "tableau";
+                        snprintf(error_msg, sizeof(error_msg),
+                                "La fonction doit retourner %s, pas un type simple", expected);
+                        print_error(error_msg, token.line);
+                        return;
+                    }
+                    // Vérifier le type d'éléments
+                    if (return_value.value.type != current_function->return_type) {
+                        char error_msg[256];
+                        const char *expected = (current_function->return_type == VAR_INT) ? "int[]" :
+                                              (current_function->return_type == VAR_FLOAT) ? "float[]" :
+                                              (current_function->return_type == VAR_STRING) ? "str[]" : "tableau";
+                        const char *got = (return_value.value.type == VAR_INT) ? "int[]" :
+                                         (return_value.value.type == VAR_FLOAT) ? "float[]" :
+                                         (return_value.value.type == VAR_STRING) ? "str[]" : "tableau";
+                        snprintf(error_msg, sizeof(error_msg),
+                                "Type de retour incompatible (attendu: %s, recu: %s)",
+                                expected, got);
+                        print_error(error_msg, token.line);
+                        return;
+                    }
+                } else {
+                    // La fonction attend un type simple
+                    if (return_value.value.is_array) {
+                        const char *func_type = (current_function->return_type == VAR_INT) ? "int" :
+                                               (current_function->return_type == VAR_FLOAT) ? "float" :
+                                               (current_function->return_type == VAR_STRING) ? "str" :
+                                               (current_function->return_type == VAR_BOOL) ? "bool" : "void";
+                        char error_msg[256];
+                        snprintf(error_msg, sizeof(error_msg),
+                                "La fonction doit retourner %s, pas un tableau", func_type);
+                        print_error(error_msg, token.line);
+                        return;
+                    }
+                }
+            }
         } else {
             return_value.value.type = VAR_VOID;
             return_value.value.value.int_val = 0;
@@ -479,6 +531,22 @@ void parse_statement() {
             
             if (!result.is_array) {
                 print_error("Expression retournant un tableau attendue", token.line);
+                return;
+            }
+            
+            // Vérifier que le type d'éléments correspond
+            if (result.type != type) {
+                char error_msg[256];
+                const char *expected = (type == VAR_INT) ? "int[]" :
+                                      (type == VAR_FLOAT) ? "float[]" :
+                                      (type == VAR_STRING) ? "str[]" : "tableau";
+                const char *got = (result.type == VAR_INT) ? "int[]" :
+                                 (result.type == VAR_FLOAT) ? "float[]" :
+                                 (result.type == VAR_STRING) ? "str[]" : "tableau";
+                snprintf(error_msg, sizeof(error_msg),
+                        "Type de tableau incompatible (attendu: %s, recu: %s)",
+                        expected, got);
+                print_error(error_msg, token.line);
                 return;
             }
             
@@ -590,9 +658,27 @@ void parse_statement() {
                 }
                 
                 // Si le résultat est un tableau (retourné par fonction)
-                if (result.is_array && var->type != VAR_ARRAY) {
-                    // Convertir la variable en tableau
-                    var->type = VAR_ARRAY;
+                if (result.is_array) {
+                    if (var->type != VAR_ARRAY) {
+                        print_error("Impossible d'affecter un tableau a une variable simple (utilisez type[])", token.line);
+                        return;
+                    }
+                    // Vérifier le type d'éléments
+                    if (var->value.array_val.elem_type != result.type) {
+                        char error_msg[256];
+                        const char *expected = (var->value.array_val.elem_type == VAR_INT) ? "int[]" :
+                                              (var->value.array_val.elem_type == VAR_FLOAT) ? "float[]" :
+                                              (var->value.array_val.elem_type == VAR_STRING) ? "str[]" : "tableau";
+                        const char *got = (result.type == VAR_INT) ? "int[]" :
+                                         (result.type == VAR_FLOAT) ? "float[]" :
+                                         (result.type == VAR_STRING) ? "str[]" : "tableau";
+                        snprintf(error_msg, sizeof(error_msg),
+                                "Type de tableau incompatible (attendu: %s, recu: %s)",
+                                expected, got);
+                        print_error(error_msg, token.line);
+                        return;
+                    }
+                    // Affecter le tableau
                     var->value.array_val = result.value.array_val;
                 }
             }

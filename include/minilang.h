@@ -119,6 +119,7 @@ typedef struct {
 
 extern Variable *variables;
 extern Function *functions;
+extern Function *current_function;  // Fonction en cours d'exécution
 extern Token *tokens;
 extern int token_count;
 extern int current_token;

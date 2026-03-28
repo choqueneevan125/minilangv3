@@ -6,6 +6,7 @@
 
 Variable *variables = NULL;
 Function *functions = NULL;
+Function *current_function = NULL;  // Fonction en cours d'exécution
 Token *tokens = NULL;
 int token_count = 0;
 int current_token = 0;
