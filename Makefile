@@ -1,4 +1,4 @@
-# Makefile pour MiniLang v3.2.3
+# Makefile pour MiniLang v3.3.0
 # Structure organisée avec dossiers src/, include/, tests/
 
 # ============================================================================
@@ -6,6 +6,7 @@
 # ============================================================================
 
 CC = gcc
+VERSION = 3.3.0
 CFLAGS = -std=gnu99 -Wall -Wextra -O2 -g -Iinclude
 TARGET = minilang
 
@@ -24,15 +25,17 @@ HEADERS = $(wildcard $(INC_DIR)/*.h)
 # RÈGLES PRINCIPALES
 # ============================================================================
 
+.PHONY: all
+
 all: $(BUILD_DIR) $(TARGET)
 	@echo ""
-	@echo "✓ MiniLang v3.3.0 compilé avec succès"
+	@echo "✓ MiniLang v$(VERSION) compilé avec succès"
 	@echo "  Structure organisée :"
 	@echo "    src/      - Sources C"
 	@echo "    include/  - Headers"
 	@echo "    tests/    - Fichiers de test"
 	@echo ""
-	@echo "  Nouvelles fonctionnalités v3.3.0 :"
+	@echo "  Fonctionnalités :"
 	@echo "    - Opérateurs composés : +=, -=, *=, /="
 	@echo "    - Comparaison de chaînes : ==, !="
 	@echo "    - input() fonctionnel"
@@ -51,16 +54,17 @@ $(BUILD_DIR):
 # TESTS
 # ============================================================================
 
-test: $(TARGET)
-	@echo "🧪 Exécution des tests..."
+.PHONY: test test-verbose test-concat test-bool test-break test-functions
+
+test: all
 	@echo ""
-	@echo "--- Test Bool ---"
-	@./$(TARGET) $(TEST_DIR)/test_bool.ml
-	@echo ""
-	@echo "--- Test Concaténation ---"
-	@./$(TARGET) $(TEST_DIR)/test_concat_complet.ml
-	@echo ""
-	@echo "✅ Tous les tests passent !"
+	@echo "════════════════════════════════════════════════════════"
+	@echo "   Lancement de la suite de tests..."
+	@echo "════════════════════════════════════════════════════════"
+	@./run_tests.sh
+
+test-verbose: all
+	@./run_tests.sh --verbose
 
 test-concat: $(TARGET)
 	./$(TARGET) $(TEST_DIR)/test_concat_complet.ml
@@ -78,6 +82,8 @@ test-functions: $(TARGET)
 # NETTOYAGE
 # ============================================================================
 
+.PHONY: clean clean-all
+
 clean:
 	rm -rf $(BUILD_DIR) $(TARGET)
 	@echo "✓ Nettoyage effectué"
@@ -88,6 +94,8 @@ clean-all: clean
 # ============================================================================
 # INSTALLATION
 # ============================================================================
+
+.PHONY: install uninstall
 
 install: $(TARGET)
 	cp $(TARGET) /usr/local/bin/
@@ -101,54 +109,41 @@ uninstall:
 # DOCUMENTATION
 # ============================================================================
 
+.PHONY: info
+
 info:
-	@echo "MiniLang v3.2.3 - Structure du projet"
+	@echo "MiniLang v$(VERSION) - Structure du projet"
 	@echo ""
 	@echo "Dossiers :"
 	@echo "  src/      - Sources C ($(words $(SOURCES)) fichiers)"
 	@echo "  include/  - Headers ($(words $(HEADERS)) fichiers)"
 	@echo "  tests/    - Tests .ml"
-	@echo "  build/    - Objets compilés (créé à la compilation)"
+	@echo "  build/    - Objets compilés"
 	@echo ""
 	@echo "Commandes :"
 	@echo "  make              - Compiler"
-	@echo "  make test         - Exécuter tous les tests"
+	@echo "  make test         - Exécuter la suite complète"
+	@echo "  make test-verbose - Tests détaillés"
 	@echo "  make clean        - Nettoyer"
-	@echo "  make install      - Installer (sudo requis)"
+	@echo "  make install      - Installer"
 	@echo "  make info         - Cette aide"
 
 # ============================================================================
 # DÉVELOPPEMENT
 # ============================================================================
 
+.PHONY: debug count
+
 debug: CFLAGS += -DDEBUG -g3
 debug: clean $(TARGET)
 	@echo "✓ Version debug compilée"
 
-# Compter les lignes de code
 count:
 	@echo "Lignes de code :"
 	@wc -l $(SRC_DIR)/*.c $(INC_DIR)/*.h | tail -1
 	@echo ""
-	@echo "Détail :"
+	@echo "Détail sources :"
 	@wc -l $(SRC_DIR)/*.c | grep -v total
 	@echo ""
+	@echo "Détail headers :"
 	@wc -l $(INC_DIR)/*.h | grep -v total
-
-.PHONY: all test test-concat test-bool test-break test-functions clean clean-all install uninstall info debug count
-
-# ============================================================================
-# TESTS
-# ============================================================================
-
-.PHONY: test
-test: all
-	@echo ""
-	@echo "════════════════════════════════════════════════════════"
-	@echo "   Lancement de la suite de tests..."
-	@echo "════════════════════════════════════════════════════════"
-	@./run_tests.sh
-
-.PHONY: test-verbose
-test-verbose: all
-	@./run_tests.sh --verbose
